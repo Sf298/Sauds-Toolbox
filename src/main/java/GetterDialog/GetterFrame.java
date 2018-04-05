@@ -6,7 +6,11 @@
 package GetterDialog;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -29,14 +33,26 @@ import javax.swing.JTextField;
 public class GetterFrame {
     
     private boolean isComplete = false;
+    private boolean windowManuallyClosed = false;
     private JDialog frame;
-    private JPanel internalJPanel;
+    private JPanel contentJPanel;
     
+    /**
+     * 
+     * @param parentFrame The parent JFrame, can be null
+     * @param contentPanel Allows the user to use custom panels
+     * @param title Frame title
+     */
     public GetterFrame(JFrame parentFrame, JComponent contentPanel, String title) {
-        internalJPanel = new JPanel(new GridLayout(1, 1));
+        JPanel rootPane = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+         c.fill = GridBagConstraints.HORIZONTAL;
+         c.weightx = 1;
+        
+        contentJPanel = new JPanel(new GridLayout());
         
         if(contentPanel!=null)
-            internalJPanel.add(contentPanel);
+            contentJPanel.add(contentPanel);
         
         frame = new JDialog(parentFrame, title, true);
         frame.addWindowListener(new WindowListener() {
@@ -44,6 +60,7 @@ public class GetterFrame {
             public void windowOpened(WindowEvent e) {}
             @Override
             public void windowClosing(WindowEvent e) {
+                windowManuallyClosed = true;
                 isComplete = true;
             }
             @Override
@@ -58,7 +75,7 @@ public class GetterFrame {
             public void windowDeactivated(WindowEvent e) {}
         });
         
-        JPanel mainPanel = new JPanel(new BorderLayout());
+        JPanel buttonPanel = new JPanel(new BorderLayout());
         
             JButton doneButton = new JButton("Done");
             doneButton.addActionListener(new ActionListener() {
@@ -69,12 +86,24 @@ public class GetterFrame {
                     isComplete = true;
                 }
             });
-            mainPanel.add(doneButton);
+            buttonPanel.add(doneButton);
         
-        frame.add(mainPanel, BorderLayout.SOUTH);
-        frame.add(internalJPanel, BorderLayout.CENTER);
+        c.gridy = 0;
+        c.weighty = 1;
+         c.insets = new Insets(0, 20, 0, 20);
+        rootPane.add(contentJPanel, c);
+        c.gridy = 1;
+        c.weighty = 0;
+         c.insets = new Insets(0, 0, 0, 0);
+        rootPane.add(buttonPanel, c);
+        frame.add(rootPane, BorderLayout.CENTER);
         
     }
+    /**
+     * 
+     * @param parentFrame The parent JFrame, can be null
+     * @param title Frame title
+     */
     public GetterFrame(JFrame parentFrame, String title) {
         this(parentFrame, null, title);
     }
@@ -88,14 +117,6 @@ public class GetterFrame {
         frame.setSize(width, height);
         frame.setVisible(true);
     }
-    
-    /*public void exitOnClose(boolean exit) {
-        if(exit) {
-            frame.setDefaultCloseOperation(JDialog.EXIT_ON_CLOSE);
-        } else {
-            frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        }
-    }*/
     
     /**
      * Waits for the user to click 'done'.
@@ -120,6 +141,10 @@ public class GetterFrame {
         complete();
     }
     
+    public boolean wasWindowManuallyClosed() {
+        return windowManuallyClosed;
+    }
+    
     
     /**
      * initialises a plain text field
@@ -133,13 +158,14 @@ public class GetterFrame {
             out.add(label, BorderLayout.WEST);
             
             JTextField field = new JTextField();
+            field.setMaximumSize(new Dimension(-1, 22));
             out.add(field, BorderLayout.CENTER);
         
         return new JComponent[] {out, field};
     }
     public JTextField addTextField(String title) {
         JComponent[] components = getTextField(title);
-        internalJPanel.add(components[0]);
+        contentJPanel.add(components[0]);
         return (JTextField) components[1];
     }
     
@@ -161,7 +187,7 @@ public class GetterFrame {
     }
     public JTextField addHiddenTextField(String title) {
         JComponent[] components = getHiddenTextField(title);
-        internalJPanel.add(components[0]);
+        contentJPanel.add(components[0]);
         return (JTextField) components[1];
     }
     
@@ -202,7 +228,7 @@ public class GetterFrame {
     }
     public JTextField addDirectoryChooserField(String title, String dialogTitle, String defaultPath) {
         JComponent[] components = getDirectoryChooserField(title, dialogTitle, defaultPath);
-        internalJPanel.add(components[0]);
+        contentJPanel.add(components[0]);
         return (JTextField) components[1];
     }
     
