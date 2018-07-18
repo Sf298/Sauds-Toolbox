@@ -14,11 +14,12 @@ public class Encryptor {
     public static String encrypt(String str, String key) {
         StringBuilder out = new StringBuilder();
         for(int i=0; i<str.length(); i++) {
-            out.append((char)(
-                    str.charAt(i)
-                    + key.charAt(i%key.length())
-                    + ((i*2) % key.length() / 3)
-            ));
+            int inC = str.charAt(i);
+            int inK = key.charAt(i%key.length());
+            int val = (i*2) % key.length() / 3;
+            
+            int cypher = (inC + inK + val) % 128;
+            out.append((char)cypher);
         }
         return out.toString();
     }
@@ -26,11 +27,12 @@ public class Encryptor {
     public static String decrypt(String str, String key) {
         StringBuilder out = new StringBuilder();
         for(int i=0; i<str.length(); i++) {
-            out.append((char)(
-                    str.charAt(i)
-                    - key.charAt(i%key.length())
-                    - ((i*2) % key.length()) / 3
-            ));
+            int inC = str.charAt(i);
+            int inK = key.charAt(i%key.length());
+            int val = (i*2) % key.length() / 3;
+            
+            int decryped = (128 + inC - inK - val) % 128;
+            out.append((char)decryped);
         }
         return out.toString();
     }

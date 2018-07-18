@@ -17,7 +17,7 @@ import javax.swing.JTextField;
 public class DialogTester {
     
     public static void main(String[] args) {
-        JPanel mainPanel = new JPanel(new GridLayout(3, 1));
+        /*JPanel mainPanel = new JPanel(new GridLayout(3, 1));
         
         JComponent[] textField = GetterFrame.getTextField("Text");
         mainPanel.add(textField[0]);
@@ -33,7 +33,16 @@ public class DialogTester {
         
         System.out.println(((JTextField) textField[1]).getText());
         System.out.println(((JTextField) passField[1]).getText());
-        System.out.println(((JTextField) dirField[1]).getText());
+        System.out.println(((JTextField) dirField[1]).getText());*/
+        
+        GetterFrame gf = new GetterFrame(null, "yolo");
+        JTextField tf = gf.addTextField("Name");
+        JTextField df = gf.addDirectoryChooserField("Save Dir", "Choose a/my file", "");
+        gf.showAndComplete(500, 500);
+        if(!gf.wasWindowManuallyClosed()) {
+            System.out.println(tf.getText());
+            System.out.println(df.getText());
+        }
     }
     
 }
