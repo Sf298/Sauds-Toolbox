@@ -49,7 +49,7 @@ public class GetterFrame {
          c.fill = GridBagConstraints.HORIZONTAL;
          c.weightx = 1;
         
-        contentJPanel = new JPanel(new GridLayout());
+        contentJPanel = new JPanel(new GridLayout(0, 1));
         
         if(contentPanel!=null)
             contentJPanel.add(contentPanel);
@@ -141,8 +141,12 @@ public class GetterFrame {
         complete();
     }
     
-    public boolean wasWindowManuallyClosed() {
-        return windowManuallyClosed;
+    /**
+     * Checks to see if the user canceled or closed the dialog
+     * @return false if the user canceled or closed the dialog
+     */
+    public boolean isInputComplete() {
+        return !windowManuallyClosed;
     }
     
     

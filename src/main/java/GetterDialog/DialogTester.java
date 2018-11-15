@@ -39,7 +39,7 @@ public class DialogTester {
         JTextField tf = gf.addTextField("Name");
         JTextField df = gf.addDirectoryChooserField("Save Dir", "Choose a/my file", "");
         gf.showAndComplete(500, 500);
-        if(!gf.wasWindowManuallyClosed()) {
+        if(!gf.isInputComplete()) {
             System.out.println(tf.getText());
             System.out.println(df.getText());
         }
