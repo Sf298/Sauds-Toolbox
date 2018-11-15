@@ -163,6 +163,11 @@ public class GetterFrame {
         
         return new JComponent[] {out, field};
     }
+    /**
+     * initialises a plain text field
+     * @param title The label to use
+     * @return [The component to add to the frame, the text field to get the text]
+     */
     public JTextField addTextField(String title) {
         JComponent[] components = getTextField(title);
         contentJPanel.add(components[0]);
@@ -185,6 +190,11 @@ public class GetterFrame {
         
         return new JComponent[] {out, field};
     }
+    /**
+     * initialises a password text field
+     * @param title The label to use
+     * @return [The component to add to the frame, the text field to get the text]
+     */
     public JTextField addHiddenTextField(String title) {
         JComponent[] components = getHiddenTextField(title);
         contentJPanel.add(components[0]);
@@ -195,6 +205,7 @@ public class GetterFrame {
      * initialises a directory selection field
      * @param title The label to use
      * @param dialogTitle The title for the FileChooser when opened
+     * @param defaultPath The directory to start in, use "" for default value
      * @return [The component to add to the frame, the JTextField to get the text]
      */
     public static JComponent[] getDirectoryChooserField(String title, String dialogTitle, String defaultPath) {
@@ -226,6 +237,13 @@ public class GetterFrame {
         
         return new JComponent[] {out, field};
     }
+    /**
+     * initialises a directory selection field
+     * @param title The label to use
+     * @param dialogTitle The title for the FileChooser when opened
+     * @param defaultPath The directory to start in, use "" for default value
+     * @return [The component to add to the frame, the JTextField to get the text]
+     */
     public JTextField addDirectoryChooserField(String title, String dialogTitle, String defaultPath) {
         JComponent[] components = getDirectoryChooserField(title, dialogTitle, defaultPath);
         contentJPanel.add(components[0]);
