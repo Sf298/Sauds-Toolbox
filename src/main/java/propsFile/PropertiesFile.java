@@ -1,5 +1,5 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
+ * To change this license header, choose License Headers in Project PropertiesFile.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -20,33 +20,33 @@ import java.util.logging.Logger;
  *
  * @author Saud
  */
-public class Properties {
+public class PropertiesFile {
     
     private final File file;
     private String separator;
     private TreeMap<String, String> map = new TreeMap();
     
-    public Properties(File f) {
+    public PropertiesFile(File f) {
         this(f, " - ");
     }
     
-    public Properties(File f, String separator) {
+    public PropertiesFile(File f, String separator) {
         file = f;
         this.separator = separator;
     }
     
-    public void cloneData(Properties p) {
+    public void cloneData(PropertiesFile p) {
         p.separator = separator;
         p.map = new TreeMap(map);
     }
     
     
     public String get(String key) {
-        return map.get(key);
+        return map.get(key).replaceAll("<!thisIsNewLine!>", "\n");
     }
     
     public void put(String key, String value) {
-        map.put(key, value);
+        map.put(key, value.replaceAll("\n", "<!thisIsNewLine!>"));
     }
     
     public boolean hasKey(String key) {
@@ -74,9 +74,9 @@ public class Properties {
             }
             
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(Properties.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PropertiesFile.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(Properties.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PropertiesFile.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     private void parseString(String str) {
@@ -107,9 +107,9 @@ public class Properties {
             fw.flush();
             fw.close();
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(Properties.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PropertiesFile.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(Properties.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PropertiesFile.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
