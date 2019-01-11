@@ -7,7 +7,8 @@ It includes:
 * Timer - A Java stopwatch with split and lap features.
 * fractions - A Class that works like a float but remains as a fraction.
 * propsFile - Portable tool to quickly create and manage properties files (can be encrypted).
-* Encryption - A quick dirty algorithm to encrypt and decrypt strings (may not be secure, do not use with important data)
+* Encryption - A quick dirty algorithm to encrypt and decrypt strings (may not be secure, do not use with important data).
+* server.client.manager - A handy tool for supporting server-client connections.
 
 ### Prerequisites
 
@@ -26,4 +27,4 @@ Java 8
 
 ## License
 
-This project free to use and modify, however I request that credit is given if the classes are reused (including if modified).
+This project free to use and modify, however I request that credit is given if the classes are reused (including when modified).
