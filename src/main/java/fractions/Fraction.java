@@ -5,6 +5,8 @@
  */
 package fractions;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author saud
@@ -38,6 +40,29 @@ public class Fraction {
         this(0, 0);
     }
     
+    
+    private static final double MIN_VAL = 0.000000000001;
+    public static Fraction parseDouble(double d, int maxIter) {
+        boolean isNeg = d < 0;
+        d = Math.abs(d);
+        double dec = (d - (int)d);
+        int numerator = (int)(d-dec);
+        int i = 0;
+        ArrayList<Integer> values = new ArrayList<>();
+        while(true) {
+            double inv = 1/dec;
+            values.add((int)inv);
+            dec = inv-(int)inv;
+            if(dec < MIN_VAL) break;
+            if(i++ > maxIter) throw new RuntimeException("maxIter hit!");
+        }
+        
+        Fraction out = new Fraction(values.get(values.size()-1));
+        for(int j=values.size()-2; j>=0; j--) {
+            out = out.invert().add(values.get(j));
+        }
+        return out.invert().add(numerator).multiply((isNeg)?-1:1);
+    }
     
     public int getNumerator() {
         return nominator/denominator;
@@ -103,6 +128,10 @@ public class Fraction {
         Fraction out = div(new Fraction(integer));
         return out;
     }
+    
+    public Fraction invert() {
+        return new Fraction(denominator, nominator);
+    }
 
     private void thisReduce() {
         for(int i=2; i<Math.max(nominator, denominator); i++) {
@@ -125,6 +154,14 @@ public class Fraction {
     
     public double toDouble() {
         return nominator / (double)denominator;
+    }
+    
+    public boolean equals(Object o) {
+        if(!(o instanceof Fraction)) return false;
+        Fraction f = (Fraction) o;
+        f = f.reduce();
+        Fraction thisF = reduce();
+        return f.denominator == thisF.denominator && f.nominator == thisF.nominator;
     }
     
     @Override

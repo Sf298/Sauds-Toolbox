@@ -6,6 +6,7 @@
 package GetterDialog;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -13,6 +14,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -21,6 +23,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -55,7 +58,7 @@ public class GetterFrame {
      * @param contentPanel Allows the user to use custom panels
      * @param title Frame title
      */
-    public GetterFrame(JFrame parentFrame, JPanel contentPanel, String title) {
+    public GetterFrame(Window parentFrame, JPanel contentPanel, String title) {
         JPanel rootPanel = new JPanel(new BorderLayout());
         
         contentJPanel = new JPanel(new GridBagLayout());
@@ -81,7 +84,7 @@ public class GetterFrame {
         rootPanel.add(doneButton, BorderLayout.SOUTH);
         
         
-        frame = new JDialog(parentFrame, title, true);
+        frame = new JDialog(parentFrame, title, ModalityType.APPLICATION_MODAL);
         frame.addWindowListener(new WindowListener() {
             @Override
             public void windowOpened(WindowEvent e) {}
@@ -110,8 +113,12 @@ public class GetterFrame {
      * @param parentFrame The parent JFrame, can be null
      * @param title Frame title
      */
-    public GetterFrame(JFrame parentFrame, String title) {
+    public GetterFrame(Window parentFrame, String title) {
         this(parentFrame, null, title);
+    }
+    
+    public JDialog getFrame() {
+        return frame;
     }
     
     /**
@@ -242,7 +249,7 @@ public class GetterFrame {
 
             out.add(field, BorderLayout.CENTER);
             
-            if(quickInsert.length>0) {
+            if(quickInsert!=null && quickInsert.length>0) {
                 JPanel buttonPanel = new JPanel();
                 for(int i=0; i<quickInsert.length; i++) {
                     JButton b = new JButton(quickInsert[i]);
@@ -385,6 +392,57 @@ public class GetterFrame {
         JComponent[] components = getComboField(title, options, editable);
         contentJPanel.add(components[0], c);
         return (JComboBox) components[1];
+    }
+    
+    /**
+     * initialises a ComboBox field
+     * @param title The label to use
+     * @return [The component to add to the frame, the ComboBox field to get the text]
+     */
+    public static JComponent[] getCheckBoxField(String title) {
+        JPanel out = new JPanel(new BorderLayout());
+        
+            JLabel label = new JLabel(title + ": ");
+            out.add(label, BorderLayout.WEST);
+            
+            JCheckBox field = new JCheckBox();
+            out.add(field, BorderLayout.CENTER);
+        
+        return new JComponent[] {out, field};
+    }
+    /**
+     * initialises a ComboBox field
+     * @param title The label to use
+     * @return [the ComboBox field to get the text]
+     */
+    public JCheckBox addCheckBoxField(String title) {
+        JComponent[] components = getCheckBoxField(title);
+        contentJPanel.add(components[0], c);
+        return (JCheckBox) components[1];
+    }
+    
+    /**
+     * Adds a JButton. Also adds a listener that closes the GetterFrame.
+     * @param b The button to add.
+     */
+    public void addButton(JButton b) {
+        b.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setVisible(false);
+                frame.dispose();
+                isComplete = true;
+            }
+        });
+        contentJPanel.add(b, c);
+    }
+    
+    /**
+     * adds a component
+     * @param component The component to add.
+     */
+    public void addComponent(JComponent component) {
+        contentJPanel.add(component, c);
     }
     
     public void repaint() {
