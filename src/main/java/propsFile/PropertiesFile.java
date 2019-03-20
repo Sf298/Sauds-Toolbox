@@ -44,6 +44,12 @@ public class PropertiesFile {
     public String get(String key) {
         return map.get(key).replaceAll("<!thisIsNewLine!>", "\n");
     }
+    public int getAsInt(String key) {
+        return Integer.parseInt(map.get(key));
+    }
+    public double getAsDouble(String key) {
+        return Double.parseDouble(map.get(key));
+    }
     
     public void put(String key, String value) {
         map.put(key, value.replaceAll("\n", "<!thisIsNewLine!>"));
