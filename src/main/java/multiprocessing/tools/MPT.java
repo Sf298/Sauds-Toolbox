@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package imported;
+package multiprocessing.tools;
 
 import PrimitiveArrayWrapper.PrimativeList;
 import java.util.ArrayList;
@@ -12,8 +12,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import multiprocessing.tools.MTPListRunnable;
-import multiprocessing.tools.MTPMapRunnable;
 
 /**
  * Provides a set of tools that can be used to simplify the implementation of
