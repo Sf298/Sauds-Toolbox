@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package multiprocessing.tools;
 
 import PrimitiveArrayWrapper.PrimitiveList;
@@ -36,6 +32,12 @@ public class MPT {
         return new int[] {left, right};
     }
     
+    /**
+     * Generates the left and right indexes for each of the threads available.
+     * @param nprocs The number of processors available.
+     * @param maxI Number of elements to partition.
+     * @return Returns an array with values in the range of the LR values
+     */
     public static int[][] getLRs(int nprocs, int maxI) {
 	int[][] out = new int[nprocs][];
 	for(int i=0; i<out.length; i++) {
@@ -382,6 +384,14 @@ public class MPT {
 	});
     }
     
+    /**
+     * Loops through the elements of a Collection using multiple threads. All
+     * calls with the same procID are run sequentially and are therefore thread
+     * safe. This allows each thread to consolidate its data into a dedicated variable or array.
+     * @param nprocs The number of processors to use.
+     * @param list The list to loop through.
+     * @param runner The runnable to call on each value in the List.
+     */
     public static <T> void run(int nprocs, Collection<T> list, MTPListRunnable<T> runner) {
 	int[][] lRs = getLRs(nprocs, list.size());
 	Thread[] threads = new Thread[nprocs];
