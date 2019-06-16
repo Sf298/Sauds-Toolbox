@@ -5,7 +5,7 @@
  */
 package multiprocessing.tools;
 
-import PrimitiveArrayWrapper.PrimativeList;
+import PrimitiveArrayWrapper.PrimitiveList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -271,7 +271,7 @@ public class MPT {
      * @param runner The runnable to call on each value in the array.
      */
     public static void run(int nprocs, byte[] arr, MTPListRunnable<Byte> runner) {
-	run(nprocs, PrimativeList.create(arr), runner);
+	run(nprocs, PrimitiveList.create(arr), runner);
     }
     
     /**
@@ -283,7 +283,7 @@ public class MPT {
      * @param runner The runnable to call on each value in the array.
      */
     public static void run(int nprocs, int[] arr, MTPListRunnable<Integer> runner) {
-	run(nprocs, PrimativeList.create(arr), runner);
+	run(nprocs, PrimitiveList.create(arr), runner);
     }
     
     /**
@@ -295,7 +295,7 @@ public class MPT {
      * @param runner The runnable to call on each value in the array.
      */
     public static void run(int nprocs, long[] arr, MTPListRunnable<Long> runner) {
-	run(nprocs, PrimativeList.create(arr), runner);
+	run(nprocs, PrimitiveList.create(arr), runner);
     }
     
     /**
@@ -307,7 +307,7 @@ public class MPT {
      * @param runner The runnable to call on each value in the array.
      */
     public static void run(int nprocs, float[] arr, MTPListRunnable<Float> runner) {
-	run(nprocs, PrimativeList.create(arr), runner);
+	run(nprocs, PrimitiveList.create(arr), runner);
     }
     
     /**
@@ -319,7 +319,7 @@ public class MPT {
      * @param runner The runnable to call on each value in the array.
      */
     public static void run(int nprocs, double[] arr, MTPListRunnable<Double> runner) {
-	run(nprocs, PrimativeList.create(arr), runner);
+	run(nprocs, PrimitiveList.create(arr), runner);
     }
     
     /**
