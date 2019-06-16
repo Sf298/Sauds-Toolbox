@@ -3,13 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package multiprocessing.tools;
+package imported;
+
+import PrimitiveArrayWrapper.PrimativeList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import multiprocessing.tools.MTPListRunnable;
+import multiprocessing.tools.MTPMapRunnable;
 
 /**
  * Provides a set of tools that can be used to simplify the implementation of
@@ -269,26 +273,7 @@ public class MPT {
      * @param runner The runnable to call on each value in the array.
      */
     public static void run(int nprocs, byte[] arr, MTPListRunnable<Byte> runner) {
-	int[][] lRs = getLRs(nprocs, arr.length);
-	Thread[] threads = new Thread[nprocs];
-	for(int i=0; i<nprocs; i++) {
-	    int procID = i;
-	    int[] currRange = lRs[i];
-	    
-	    threads[procID] = new Thread(() -> {
-		for(int j=currRange[0]; j<currRange[1]; j++) {
-		    runner.iter(procID, j, arr[j]);
-		}
-	    });
-	    threads[procID].start();
-	}
-	
-	// join threads
-	for(int i=0; i<threads.length; i++) {
-	    try {
-		threads[i].join();
-	    } catch (InterruptedException ex) {}
-	}
+	run(nprocs, PrimativeList.create(arr), runner);
     }
     
     /**
@@ -300,26 +285,7 @@ public class MPT {
      * @param runner The runnable to call on each value in the array.
      */
     public static void run(int nprocs, int[] arr, MTPListRunnable<Integer> runner) {
-	int[][] lRs = getLRs(nprocs, arr.length);
-	Thread[] threads = new Thread[nprocs];
-	for(int i=0; i<nprocs; i++) {
-	    int procID = i;
-	    int[] currRange = lRs[i];
-	    
-	    threads[procID] = new Thread(() -> {
-		for(int j=currRange[0]; j<currRange[1]; j++) {
-		    runner.iter(procID, j, arr[j]);
-		}
-	    });
-	    threads[procID].start();
-	}
-	
-	// join threads
-	for(int i=0; i<threads.length; i++) {
-	    try {
-		threads[i].join();
-	    } catch (InterruptedException ex) {}
-	}
+	run(nprocs, PrimativeList.create(arr), runner);
     }
     
     /**
@@ -331,26 +297,7 @@ public class MPT {
      * @param runner The runnable to call on each value in the array.
      */
     public static void run(int nprocs, long[] arr, MTPListRunnable<Long> runner) {
-	int[][] lRs = getLRs(nprocs, arr.length);
-	Thread[] threads = new Thread[nprocs];
-	for(int i=0; i<nprocs; i++) {
-	    int procID = i;
-	    int[] currRange = lRs[i];
-	    
-	    threads[procID] = new Thread(() -> {
-		for(int j=currRange[0]; j<currRange[1]; j++) {
-		    runner.iter(procID, j, arr[j]);
-		}
-	    });
-	    threads[procID].start();
-	}
-	
-	// join threads
-	for(int i=0; i<threads.length; i++) {
-	    try {
-		threads[i].join();
-	    } catch (InterruptedException ex) {}
-	}
+	run(nprocs, PrimativeList.create(arr), runner);
     }
     
     /**
@@ -362,26 +309,7 @@ public class MPT {
      * @param runner The runnable to call on each value in the array.
      */
     public static void run(int nprocs, float[] arr, MTPListRunnable<Float> runner) {
-	int[][] lRs = getLRs(nprocs, arr.length);
-	Thread[] threads = new Thread[nprocs];
-	for(int i=0; i<nprocs; i++) {
-	    int procID = i;
-	    int[] currRange = lRs[i];
-	    
-	    threads[procID] = new Thread(() -> {
-		for(int j=currRange[0]; j<currRange[1]; j++) {
-		    runner.iter(procID, j, arr[j]);
-		}
-	    });
-	    threads[procID].start();
-	}
-	
-	// join threads
-	for(int i=0; i<threads.length; i++) {
-	    try {
-		threads[i].join();
-	    } catch (InterruptedException ex) {}
-	}
+	run(nprocs, PrimativeList.create(arr), runner);
     }
     
     /**
@@ -393,26 +321,7 @@ public class MPT {
      * @param runner The runnable to call on each value in the array.
      */
     public static void run(int nprocs, double[] arr, MTPListRunnable<Double> runner) {
-	int[][] lRs = getLRs(nprocs, arr.length);
-	Thread[] threads = new Thread[nprocs];
-	for(int i=0; i<nprocs; i++) {
-	    int procID = i;
-	    int[] currRange = lRs[i];
-	    
-	    threads[procID] = new Thread(() -> {
-		for(int j=currRange[0]; j<currRange[1]; j++) {
-		    runner.iter(procID, j, arr[j]);
-		}
-	    });
-	    threads[procID].start();
-	}
-	
-	// join threads
-	for(int i=0; i<threads.length; i++) {
-	    try {
-		threads[i].join();
-	    } catch (InterruptedException ex) {}
-	}
+	run(nprocs, PrimativeList.create(arr), runner);
     }
     
     /**
@@ -424,26 +333,7 @@ public class MPT {
      * @param runner The runnable to call on each value in the array.
      */
     public static <T> void run(int nprocs, T[] arr, MTPListRunnable<T> runner) {
-	int[][] lRs = getLRs(nprocs, arr.length);
-	Thread[] threads = new Thread[nprocs];
-	for(int i=0; i<nprocs; i++) {
-	    int procID = i;
-	    int[] currRange = lRs[i];
-	    
-	    threads[procID] = new Thread(() -> {
-		for(int j=currRange[0]; j<currRange[1]; j++) {
-		    runner.iter(procID, j, arr[j]);
-		}
-	    });
-	    threads[procID].start();
-	}
-	
-	// join threads
-	for(int i=0; i<threads.length; i++) {
-	    try {
-		threads[i].join();
-	    } catch (InterruptedException ex) {}
-	}
+	run(nprocs, Arrays.asList(arr), runner);
     }
     
     /**
