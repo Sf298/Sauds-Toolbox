@@ -1,9 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package graphs;
+
+import java.util.ArrayList;
 
 /**
  *
@@ -12,18 +10,18 @@ package graphs;
 public class Tester {
     
     public static void main(String[] args) {
-        GNode[][] grid = GNode.newGNodeGrid(5, 4, 1);
-        for(int i=0; i<grid.length; i++) {
-            for(int j=0; j<grid[i].length; j++) {
+        ArrayList<ArrayList<GNode<Integer>>> grid = GNode.newGNodeGrid(5, 4, (Integer)1);
+        for(int i=0; i<grid.size(); i++) {
+            for(int j=0; j<grid.get(i).size(); j++) {
                 if(i%2==1) {
-                    grid[i][j].setData((i+1)*grid[i].length - j -1);
+                    grid.get(i).get(j).setData((i+1)*grid.get(i).size() - j -1);
                 } else {
-                    grid[i][j].setData(i*grid[i].length + j);
+                    grid.get(i).get(j).setData(i*grid.get(i).size() + j);
                 }
             }
         }
         
-        GNodeIterator i = new GNodeIterator(grid[0][0], GNodeIterator.DEPTH_FIRST_SEARCH)/* {
+        GNodeIterator i = new GNodeIterator(grid.get(0).get(0), GNodeIterator.SEARCH_DEPTH_FIRST)/* {
             @Override
             public boolean canAddNextNode(GNode node, GNode parent) {
                 return ((int)node.getData()) == ((int)parent.getData()+1);

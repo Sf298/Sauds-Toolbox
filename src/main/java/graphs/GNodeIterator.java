@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package graphs;
 
 import java.util.ArrayList;
@@ -12,36 +8,36 @@ import java.util.LinkedList;
  *
  * @author saud
  */
-public class GNodeIterator {
-    public static int FLOOD_FILL = 0;
-    public static int DEPTH_FIRST_SEARCH = 1;
+public class GNodeIterator<T> {
+    public static int SEARCH_BREADTH_FIRST = 0;
+    public static int SEARCH_DEPTH_FIRST = 1;
     
-    private final ArrayList<GNode> nodeList = new ArrayList<>();
-    private final LinkedList<GNode> q = new LinkedList<>();
-    private final LinkedList<GNode> prev = new LinkedList<>();
+    private final ArrayList<GNode<T>> nodeList = new ArrayList<>();
+    private final LinkedList<GNode<T>> q = new LinkedList<>();
+    private final LinkedList<GNode<T>> prev = new LinkedList<>();
     private final int fillType;
 
-    public GNodeIterator(GNode seed, int fillType) {
+    public GNodeIterator(GNode<T> seed, int searchType) {
         seed.setWasScanned(true);
         q.add(seed);
         prev.add(null);
-        this.fillType = fillType;
+        fillType = searchType;
     }
 
     public boolean hasNext() {
         return !q.isEmpty();
     }
 
-    public GNode next() {
-        GNode curr;
-        if(fillType == DEPTH_FIRST_SEARCH) {
+    public GNode<T> next() {
+        GNode<T> curr;
+        if(fillType == SEARCH_DEPTH_FIRST) {
             curr = q.removeLast();
         } else {
             curr = q.removeFirst();
         }
         nodeList.add(curr);
 
-        for(GNode node : curr.getNeighbours()) {
+        for(GNode<T> node : curr.getNeighbours()) {
             if(!node.getWasScanned() && canAddNextNode(node, curr)) {
                 node.setWasScanned(true);
                 q.add(node);
@@ -55,13 +51,13 @@ public class GNodeIterator {
 
     private void resetScans() {
         if(!hasNext()) {
-            for(GNode node : nodeList) {
+            for(GNode<T> node : nodeList) {
                 node.setWasScanned(false);
             }
         }
     }
 
-    public boolean canAddNextNode(GNode node, GNode parent) {
+    public boolean canAddNextNode(GNode<T> node, GNode<T> parent) {
         return true;
     }
     

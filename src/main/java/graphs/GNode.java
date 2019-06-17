@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package graphs;
 
 import java.util.ArrayList;
@@ -11,45 +7,48 @@ import java.util.ArrayList;
  *
  * @author saud
  */
-public class GNode {
+public class GNode<T> {
     
     private boolean wasScanned = false;
     private final ArrayList<GNode> neighbours = new ArrayList<>();
     private final ArrayList<Double> weights = new ArrayList<>();
-    private Object data;
+    private T data;
     
-    public GNode(Object data) {
+    public GNode(T data) {
         this.data = data;
     }
     
-    public static GNode[][] newGNodeGrid(int width, int height, Object data) {
-        GNode[][] out = new GNode[width][height];
-        for(int i=0; i<out.length; i++) {
-            for(int j=0; j<out[i].length; j++) {
-                out[i][j] = new GNode(data);
+    public static <T> ArrayList<ArrayList<GNode<T>>> newGNodeGrid(int width, int height, T data) {
+        ArrayList<ArrayList<GNode<T>>> out = new ArrayList<>();
+        for(int i=0; i<width; i++) {
+	    ArrayList<GNode<T>> col = new ArrayList<>();
+	    out.add(col);
+            for(int j=0; j<height; j++) {
+		col.add(new GNode(data));
             }
         }
-        for(int i=0; i<out.length; i++) {
-            for(int j=0; j<out[i].length; j++) {
+        for(int i=0; i<out.size(); i++) {
+            for(int j=0; j<out.get(i).size(); j++) {
+		GNode<T> temp = out.get(i).get(j);
                 if(i>0)
-                    out[i][j].addNeigbour(out[i-1][j]);
+                    temp.addNeigbour(out.get(i-1).get(j));
                 if(j>0)
-                    out[i][j].addNeigbour(out[i][j-1]);
+                    temp.addNeigbour(out.get(i).get(j-1));
                 if(i<width-1)
-                    out[i][j].addNeigbour(out[i+1][j]);
+                    temp.addNeigbour(out.get(i+1).get(j));
                 if(j<height-1)
-                    out[i][j].addNeigbour(out[i][j+1]);
+                    temp.addNeigbour(out.get(i).get(j+1));
             }
         }
         return out;
     }
     
     
-    public void setData(Object data) {
+    public void setData(T data) {
         this.data = data;
     }
     
-    public Object getData() {
+    public T getData() {
         return data;
     }
 
