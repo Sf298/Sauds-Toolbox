@@ -6,12 +6,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Provides a set of tools that can be used to simplify the implementation of
- * Muti-Processing Systems
+ * This Multi-Processing Tools (MPT) class provides a set of tools that can be
+ * used to simplify the implementation of Muti-Processing Systems. It is
+ * optimised for tasks with many element short that take a short amount of time
+ * to process.
  * @author Saud Fatayerji
  */
 public class MPT {
@@ -236,7 +239,7 @@ public class MPT {
      * @param step The number to increment by at each step.
      * @param runner The runnable to call on each value in the range.
      */
-    public static <T> void run(int nprocs, int start, int stop, int step, MTPListRunnable runner) {
+    public static void run(int nprocs, int start, int stop, int step, MTPListRunnable runner) {
 	int phase = start % step;
 	int[][] lRs = getLRs(nprocs, stop-start);
 	Thread[] threads = new Thread[nprocs];
@@ -333,38 +336,19 @@ public class MPT {
      * @param runner The runnable to call on each value in the array.
      */
     public static <T> void run(int nprocs, T[] arr, MTPListRunnable<T> runner) {
-	run(nprocs, Arrays.asList(arr), runner);
+		run(nprocs, Arrays.asList(arr), runner);
     }
     
     /**
-     * Loops through the elements of a List using multiple threads. All
+     * Loops through the elements of a Collection using multiple threads. All
      * calls with the same procID are run sequentially and are therefore thread
      * safe. This allows each thread to consolidate its data into a dedicated variable or array.
      * @param nprocs The number of processors to use.
-     * @param list The list to loop through.
+     * @param c The list to loop through.
      * @param runner The runnable to call on each value in the List.
      */
-    public static <T> void run(int nprocs, List<T> list, MTPListRunnable<T> runner) {
-	int[][] lRs = getLRs(nprocs, list.size());
-	Thread[] threads = new Thread[nprocs];
-	for(int i=0; i<nprocs; i++) {
-	    int procID = i;
-	    int[] currRange = lRs[i];
-	    
-	    threads[procID] = new Thread(() -> {
-		for(int j=currRange[0]; j<currRange[1]; j++) {
-		    runner.iter(procID, j, list.get(j));
-		}
-	    });
-	    threads[procID].start();
-	}
-	
-	// join threads
-	for(int i=0; i<threads.length; i++) {
-	    try {
-		threads[i].join();
-	    } catch (InterruptedException ex) {}
-	}
+    public static <T> void run(int nprocs, Collection<T> c, MTPListRunnable<T> runner) {
+		run(nprocs, PrimitiveList.create(c.toArray()), runner);
     }
     
     /**
@@ -376,56 +360,43 @@ public class MPT {
      * @param runner The runnable to call on each key-value pair.
      */
     public static <K,V> void run(int nprocs, Map<K,V> map, MTPMapRunnable<K,V> runner) {
-	run(nprocs, map.entrySet(), new MTPListRunnable<Map.Entry<K, V>>() {
-	    @Override
-	    public void iter(int procID, int idx, Map.Entry<K, V> val) {
-		runner.iter(procID, val.getKey(), val.getValue());
-	    }
-	});
+		run(nprocs, map.entrySet(), new MTPListRunnable<Map.Entry<K, V>>() {
+			@Override
+			public void iter(int procID, int idx, Map.Entry<K, V> val) {
+				runner.iter(procID, val.getKey(), val.getValue());
+			}
+		});
     }
     
     /**
-     * Loops through the elements of a Collection using multiple threads. All
+     * Loops through the elements of a List using multiple threads. All
      * calls with the same procID are run sequentially and are therefore thread
      * safe. This allows each thread to consolidate its data into a dedicated variable or array.
      * @param nprocs The number of processors to use.
      * @param list The list to loop through.
      * @param runner The runnable to call on each value in the List.
      */
-    public static <T> void run(int nprocs, Collection<T> list, MTPListRunnable<T> runner) {
-	int[][] lRs = getLRs(nprocs, list.size());
-	Thread[] threads = new Thread[nprocs];
-	for(int i=0; i<nprocs; i++) {
-	    int procID = i;
-	    int[] currRange = lRs[i];
-	    
-	    threads[procID] = new Thread(() -> {
-		for(int j=currRange[0]; j<currRange[1]; j++) {
-		    try {
-			runner.iter(procID, j, popFrom(list));
-		    } catch (RuntimeException e) {
-			return;
-		    }
+    public static <T> void run(int nprocs, List<T> list, MTPListRunnable<T> runner) {
+		int[][] lRs = getLRs(nprocs, list.size());
+		Thread[] threads = new Thread[nprocs];
+		for(int i=0; i<nprocs; i++) {
+			int procID = i;
+			int[] currRange = lRs[i];
+
+			threads[procID] = new Thread(() -> {
+			for(int j=currRange[0]; j<currRange[1]; j++) {
+				runner.iter(procID, j, list.get(j));
+			}
+			});
+			threads[procID].start();
 		}
-	    });
-	    threads[procID].start();
-	}
-	
-	// join threads
-	for(int i=0; i<threads.length; i++) {
-	    try {
-		threads[i].join();
-	    } catch (InterruptedException ex) {}
-	}
-    }
-    
-    private static synchronized <T> T popFrom(Collection<T> c) {
-	if(c.isEmpty()) throw new RuntimeException("collection empty");
-	T out = null;
-	for(T t : c)
-	    out = t;
-	c.remove(out);
-	return out;
+
+		// join threads
+		for(int i=0; i<threads.length; i++) {
+			try {
+			threads[i].join();
+			} catch (InterruptedException ex) {}
+		}
     }
     
 }

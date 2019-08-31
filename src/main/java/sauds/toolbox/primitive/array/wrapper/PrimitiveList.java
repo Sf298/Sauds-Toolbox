@@ -2,6 +2,7 @@
 package sauds.toolbox.primitive.array.wrapper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,6 +23,7 @@ public class PrimitiveList<T> implements List<T> {
     private static final int DOUBLE = 5;
     private static final int CHAR = 6;
     private static final int BOOL = 7;
+    private static final int OBJ = 8;
     
     private int type;
     private byte[] by;
@@ -32,6 +34,7 @@ public class PrimitiveList<T> implements List<T> {
     private double[] dd;
     private char[] cc;
     private boolean[] bb;
+    private Object[] oo;
     
     private PrimitiveList(){}
     
@@ -83,6 +86,12 @@ public class PrimitiveList<T> implements List<T> {
 	out.type = BOOL;
 	return out;
     }
+    public static PrimitiveList create(Object[] arr) {
+	PrimitiveList out = new PrimitiveList();
+	out.oo = arr;
+	out.type = OBJ;
+	return out;
+    }
 
     @Override
     public int size() {
@@ -94,15 +103,17 @@ public class PrimitiveList<T> implements List<T> {
 	    case INT:
 		return ii.length;
 	    case LONG:
-		return dd.length;
+		return ll.length;
 	    case FLOAT:
-		return dd.length;
+		return ff.length;
 	    case DOUBLE:
 		return dd.length;
 	    case CHAR:
-		return dd.length;
+		return cc.length;
 	    case BOOL:
-		return dd.length;
+		return bb.length;
+	    case OBJ:
+		return oo.length;
 	}
 	return 0;
     } // =====
@@ -154,6 +165,8 @@ public class PrimitiveList<T> implements List<T> {
 		return new Object[] {cc};
 	    case BOOL:
 		return new Object[] {bb};
+	    case OBJ:
+		return new Object[] {oo};
 	}
 	return null;
     } // =====
@@ -175,12 +188,7 @@ public class PrimitiveList<T> implements List<T> {
 
     @Override
     public boolean containsAll(Collection<?> c) {
-	HashSet<?> set = new HashSet<>(this);
-	for(Object o : c) {
-	    if(!set.contains(o))
-		return false;
-	}
-	return true;
+		return new HashSet(this).containsAll(c);
     }
 
     @Override
@@ -227,39 +235,45 @@ public class PrimitiveList<T> implements List<T> {
 		return (T)(Character)cc[index];
 	    case BOOL:
 		return (T)(Boolean)bb[index];
+	    case OBJ:
+		return (T)oo[index];
 	}
 	return null;
     } // =====
 
     @Override
     public T set(int index, T element) {
-	switch(type) {
-	    case BYTE:
-		by[index] = (Byte) element;
-		break;
-	    case SHORT:
-		ss[index] = (Short) element;
-		break;
-	    case INT:
-		ii[index] = (Integer) element;
-		break;
-	    case LONG:
-		ll[index] = (Long) element;
-		break;
-	    case FLOAT:
-		ff[index] = (Float) element;
-		break;
-	    case DOUBLE:
-		dd[index] = (Double) element;
-		break;
-	    case CHAR:
-		cc[index] = (Character) element;
-		break;
-	    case BOOL:
-		bb[index] = (Boolean) element;
-		break;
-	}
-	return element;
+		switch(type) {
+			case BYTE:
+			by[index] = (Byte) element;
+			break;
+			case SHORT:
+			ss[index] = (Short) element;
+			break;
+			case INT:
+			ii[index] = (Integer) element;
+			break;
+			case LONG:
+			ll[index] = (Long) element;
+			break;
+			case FLOAT:
+			ff[index] = (Float) element;
+			break;
+			case DOUBLE:
+			dd[index] = (Double) element;
+			break;
+			case CHAR:
+			cc[index] = (Character) element;
+			break;
+			case BOOL:
+			bb[index] = (Boolean) element;
+			break;
+			case OBJ:
+			oo[index] = (Object) element;
+			break;
+		}
+		hashCache = null;
+		return element;
     } // =====
 
     @Override
@@ -307,6 +321,10 @@ public class PrimitiveList<T> implements List<T> {
 		for (int i=0; i<bb.length; i++)
 		    if((Boolean)o == bb[i]) return i;
 		break;
+	    case OBJ:
+		for (int i=0; i<oo.length; i++)
+		    if(o == oo[i]) return i;
+		break;
 	}
 	return -1;
     } // =====
@@ -345,6 +363,10 @@ public class PrimitiveList<T> implements List<T> {
 	    case BOOL:
 		for (int i=bb.length-1; i>=0; i--)
 		    if((Boolean)o == bb[i]) return i;
+		break;
+	    case OBJ:
+		for (int i=oo.length-1; i>=0; i--)
+		    if(o == oo[i]) return i;
 		break;
 	    }
 	return -1;
@@ -396,8 +418,56 @@ public class PrimitiveList<T> implements List<T> {
 		for(int i=fromIndex; i<toIndex; i++)
 		    out.add((T)(Boolean)bb[i]);
 		break;
+	    case OBJ:
+		for(int i=fromIndex; i<toIndex; i++)
+		    out.add((T)oo[i]);
+		break;
 	}
 	return out;
     } // =====
+	
+	private Integer hashCache = null;
+	@Override
+	public int hashCode() {
+		if(hashCache == null) {
+			switch(type) {
+				case BYTE:  hashCache = Arrays.hashCode(by); break;
+				case SHORT:  hashCache = Arrays.hashCode(ss); break;
+				case INT:  hashCache = Arrays.hashCode(ii); break;
+				case LONG:  hashCache = Arrays.hashCode(ll); break;
+				case FLOAT:  hashCache = Arrays.hashCode(ff); break;
+				case DOUBLE:  hashCache = Arrays.hashCode(dd); break;
+				case CHAR:  hashCache = Arrays.hashCode(cc); break;
+				case BOOL:  hashCache = Arrays.hashCode(bb); break;
+				case OBJ:  hashCache = Arrays.hashCode(oo); break;
+			}
+		}
+		return hashCache;
+	} // =====
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final PrimitiveList<?> other = (PrimitiveList<?>) obj;
+		if(this.type != other.type) return false;
+		if(this.by!=null) return Arrays.equals(this.by, other.by);
+		if(this.ss!=null) return Arrays.equals(this.ss, other.ss);
+		if(this.ii!=null) return Arrays.equals(this.ii, other.ii);
+		if(this.ll!=null) return Arrays.equals(this.ll, other.ll);
+		if(this.ff!=null) return Arrays.equals(this.ff, other.ff);
+		if(this.dd!=null) return Arrays.equals(this.dd, other.dd);
+		if(this.cc!=null) return Arrays.equals(this.cc, other.cc);
+		if(this.bb!=null) return Arrays.equals(this.bb, other.bb);
+		if(this.oo!=null) return Arrays.deepEquals(this.oo, other.oo);
+		return true;
+	}
     
 }
