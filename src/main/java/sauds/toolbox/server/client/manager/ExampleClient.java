@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  *
  * @author saud
  */
-public class Tester1 {
+public class ExampleClient {
     
     public static void main(String[] args) throws IOException, InterruptedException {
         ClientManager cm = new ClientManager();
