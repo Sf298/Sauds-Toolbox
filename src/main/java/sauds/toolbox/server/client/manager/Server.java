@@ -6,12 +6,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * Creates a server and handles incoming connections with ClientManagers.
  * @author Saud Fatayerji
  */
-public class Server {
+public class Server implements Iterable {
     
     private String name;
     private Thread serverThread;
@@ -68,7 +69,19 @@ public class Server {
             }
         });
     }
-    
+
+	public int userCount() {
+		return users.size();
+	}
+	public UserManager getUserManager(int i) {
+		return users.get(i);
+	}
+
+	@Override
+	public Iterator<UserManager> iterator() {
+		return users.listIterator();
+	}
+	
     /**
      * Gets the name of this server.
      * @return The name of this server.
