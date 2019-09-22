@@ -45,9 +45,9 @@ public final class UserManager {
         oos.flush();
         loginChecker = lci;
         userId = null;
-        addMessageListener(Msg.LOGIN, new MessageListener() {
+        addMessageListener(Msg.LOGIN, new MessageListenerServer() {
             @Override
-            public void onReceived(Msg m) {
+            public void onReceived(UserManager um, Msg m) {
                 String uname = (String) m.getArg(0);
                 String pword = (String) m.getArg(1);
                 if(loginChecker==null || loginChecker.isValid(uname, pword)) {
@@ -59,16 +59,16 @@ public final class UserManager {
                 }
             }
         });
-        addMessageListener(Msg.LOGOUT, new MessageListener() {
+        addMessageListener(Msg.LOGOUT, new MessageListenerServer() {
             @Override
-            public void onReceived(Msg m) {
+            public void onReceived(UserManager um, Msg m) {
                 stopRecievingThread();
                 closeConnection();
             }
         });
-        addMessageListener(new MessageListener() {
+        addMessageListener(new MessageListenerServer() {
             @Override
-            public void onReceived(Msg m) {
+            public void onReceived(UserManager um, Msg m) {
                 System.out.println(m);
             }
         });
@@ -173,15 +173,15 @@ public final class UserManager {
         } catch(IOException e) {}
     }
     
-    private HashSet<MessageListener> messageListeners = new HashSet<>();
-    private HashMap<Integer, HashSet<MessageListener>> filteredMessageListeners = new HashMap<>();
+    private HashSet<MessageListenerServer> messageListeners = new HashSet<>();
+    private HashMap<Integer, HashSet<MessageListenerServer>> filteredMessageListeners = new HashMap<>();
     
     /**
      * Adds a message listener to the UserManager. The listener is
      * called whenever any Msg object is received from the client.
      * @param ml The listener to add.
      */
-    public void addMessageListener(MessageListener ml) {
+    public void addMessageListener(MessageListenerServer ml) {
         messageListeners.add(ml);
     }
     
@@ -192,7 +192,7 @@ public final class UserManager {
      * @param action The action to filter for.
      * @param ml The listener to add.
      */
-    public void addMessageListener(int action, MessageListener ml) {
+    public void addMessageListener(int action, MessageListenerServer ml) {
         if(!filteredMessageListeners.containsKey(action))
             filteredMessageListeners.put(action, new HashSet<>());
         filteredMessageListeners.get(action).add(ml);
@@ -203,7 +203,7 @@ public final class UserManager {
      * UserManager.
      * @param ml The listener to remove.
      */
-    public void removeMessageListener(MessageListener ml) {
+    public void removeMessageListener(MessageListenerServer ml) {
         messageListeners.remove(ml);
     }
     
@@ -213,7 +213,7 @@ public final class UserManager {
      * @param action The action associated with the filter.
      * @param ml The listener to remove.
      */
-    public void removeMessageListener(int action, MessageListener ml) {
+    public void removeMessageListener(int action, MessageListenerServer ml) {
         if(filteredMessageListeners.containsKey(action))
             filteredMessageListeners.get(action).remove(ml);
     }
@@ -224,10 +224,10 @@ public final class UserManager {
      */
     private void runMessageListeners(Msg m) {
         if(filteredMessageListeners.containsKey(m.getAction()))
-            for(MessageListener ml : filteredMessageListeners.get(m.getAction())) 
-                ml.onReceived(m);
-        for(MessageListener ml : messageListeners) {
-            ml.onReceived(m);
+            for(MessageListenerServer ml : filteredMessageListeners.get(m.getAction())) 
+                ml.onReceived(this, m);
+        for(MessageListenerServer ml : messageListeners) {
+            ml.onReceived(this, m);
         }
     }
     

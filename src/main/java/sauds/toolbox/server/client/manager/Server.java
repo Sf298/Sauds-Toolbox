@@ -64,6 +64,9 @@ public class Server implements Iterable {
                                 runUserChangeListeners(USER_REMOVED, um);
                             }
                         });
+						for(MessageListenerServer ml : sharedMessageListeners) {
+							um.addMessageListener(ml);
+						}
                         users.add(um);
                         runUserChangeListeners(USER_ADDED, um);
                         System.out.println("connection "+um+" initiated");
@@ -98,6 +101,27 @@ public class Server implements Iterable {
      */
     public void start() {
         serverThread.start();
+    }
+	
+	
+    private HashSet<MessageListenerServer> sharedMessageListeners = new HashSet<>();
+	
+    /**
+     * Adds a message listener to all new UserManagers. The listener is called
+     * whenever a new Msg object with the specified action is received from the
+     * client.
+     * @param ml The listener to add.
+     */
+    public void addSharedMessageListener(MessageListenerServer ml) {
+        sharedMessageListeners.add(ml);
+    }
+	
+    /**
+     * Stops adding the message listener from new UserManagers.
+     * @param ml The listener to remove.
+     */
+    public void removeSharedMessageListener(MessageListenerServer ml) {
+        sharedMessageListeners.remove(ml);
     }
     
     
