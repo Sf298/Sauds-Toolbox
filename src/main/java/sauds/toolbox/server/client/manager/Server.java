@@ -13,6 +13,9 @@ import java.util.Iterator;
  * @author Saud Fatayerji
  */
 public class Server implements Iterable {
+	
+	public static final int USER_ADDED = 0;
+	public static final int USER_REMOVED = 1;
     
     private String name;
     private Thread serverThread;
@@ -58,11 +61,11 @@ public class Server implements Iterable {
                             @Override
                             public void run() {
                                 users.remove(um);
-                                runUserChangeListeners();
+                                runUserChangeListeners(USER_REMOVED, um);
                             }
                         });
                         users.add(um);
-                        runUserChangeListeners();
+                        runUserChangeListeners(USER_ADDED, um);
                         System.out.println("connection "+um+" initiated");
                     } catch (IOException ex) {}
                 }
@@ -98,31 +101,31 @@ public class Server implements Iterable {
     }
     
     
-    private HashSet<Runnable> userChangeListeners = new HashSet<>();
+    private HashSet<UserChangeListener> userChangeListeners = new HashSet<>();
     
     /**
      * Adds a user change listener to the Server. The listener is called
      * whenever there is a change in the connected users.
-     * @param r The listener to add.
+     * @param l The listener to add.
      */
-    public void addUserChangeListener(Runnable r) {
-        userChangeListeners.add(r);
+    public void addUserChangeListener(UserChangeListener l) {
+        userChangeListeners.add(l);
     }
     
     /**
      * Removes a user change listener from the Server.
-     * @param r The listener to remove.
+     * @param l The listener to remove.
      */
-    public void removeUserChangeListener(Runnable r) {
-        userChangeListeners.remove(r);
+    public void removeUserChangeListener(UserChangeListener l) {
+        userChangeListeners.remove(l);
     }
     
     /**
      * Runs all user change listeners associated with this Server.
      */
-    private void runUserChangeListeners() {
-        for(Runnable r : userChangeListeners) {
-            r.run();
+    private void runUserChangeListeners(int action, UserManager um) {
+        for(UserChangeListener l : userChangeListeners) {
+            l.onChange(action, um);
         }
     }
     
