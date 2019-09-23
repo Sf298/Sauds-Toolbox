@@ -133,7 +133,6 @@ public final class ClientManager {
      * @return The received Msg object.
      */
     private synchronized Msg waitMessage() {
-		if(loginReqired && !isLoggedIn()) throw new RuntimeException("Not logged in!!");
         try {
             Object o = null;
             while(o==null && !Thread.currentThread().isInterrupted()) {
