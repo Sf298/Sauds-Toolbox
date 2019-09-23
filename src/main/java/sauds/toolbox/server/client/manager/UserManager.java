@@ -66,12 +66,20 @@ public final class UserManager {
                 closeConnection();
             }
         });
-        addMessageListener(new MessageListenerServer() {
+        addMessageListener(Msg.IS_LOGIN_REQ, new MessageListenerServer() {
+            @Override
+            public void onReceived(UserManager um, Msg m) {
+                sendMessage(new Msg(
+					(loginChecker==null) ? Msg.LOGIN_REQ_FALSE : Msg.LOGIN_REQ_TRUE
+				));
+            }
+        });
+        /*addMessageListener(new MessageListenerServer() {
             @Override
             public void onReceived(UserManager um, Msg m) {
                 System.out.println(m);
             }
-        });
+        });*/
         startRecievingThread();
     }
     
@@ -106,6 +114,8 @@ public final class UserManager {
                     Msg m = waitMessage();
                     if(m!=null && (isLoggedIn() || m.getAction()==Msg.LOGIN))
                         runMessageListeners(m);
+					else 
+						sendMessage(new Msg(Msg.LOGIN_FAIL));
                 }
             }
         });

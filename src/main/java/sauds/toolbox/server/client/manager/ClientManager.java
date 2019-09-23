@@ -24,11 +24,14 @@ public final class ClientManager {
     public static final int OPERATION_SUCCESSFUL = 0;
     public static final int ERROR_NOT_CONNECTED = 1;
     public static final int ERROR_BAD_LOGIN = 2;
+	
+	public static boolean DEBUG = false;
     
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
     private Thread recievingThread = null;
     private int connStatus = STATUS_DISCONNECTED;
+    private boolean loginReqired;
     
     /**
      * Creates a new ClientManager Object
@@ -59,6 +62,9 @@ public final class ClientManager {
             oos.flush();
             ois = new ObjectInputStream(s.getInputStream());
             s.setSoTimeout(200);
+			
+			Msg reply = sendAndWaitReply(new Msg(Msg.IS_LOGIN_REQ));
+			loginReqired = reply.getAction() == Msg.LOGIN_REQ_TRUE;
 
             connStatus = STATUS_CONNECTED;
             runConnectionChangeListeners();
@@ -111,7 +117,8 @@ public final class ClientManager {
      * @param m The Msg object to send.
      */
     public void sendMessage(Msg m) {
-        System.out.println("****\nSending: "+m.toString()+"\n****");
+		if(loginReqired && !isLoggedIn()) throw new RuntimeException("Not logged in!!");
+        if(DEBUG) System.out.println("****\nSending: "+m.toString()+"\n****");
         try {
             oos.writeObject(m);
             oos.flush();
@@ -126,6 +133,7 @@ public final class ClientManager {
      * @return The received Msg object.
      */
     private synchronized Msg waitMessage() {
+		if(loginReqired && !isLoggedIn()) throw new RuntimeException("Not logged in!!");
         try {
             Object o = null;
             while(o==null && !Thread.currentThread().isInterrupted()) {

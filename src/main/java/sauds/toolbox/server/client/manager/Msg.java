@@ -15,6 +15,9 @@ public class Msg implements Serializable {
     public static final int LOGOUT = -3;
     public static final int LOGIN_OK = -4;
     public static final int LOGIN_FAIL = -5;
+    public static final int IS_LOGIN_REQ = -6;
+    public static final int LOGIN_REQ_TRUE = -7;
+    public static final int LOGIN_REQ_FALSE = -8;
     
     private int action;
     private Serializable[] args;
