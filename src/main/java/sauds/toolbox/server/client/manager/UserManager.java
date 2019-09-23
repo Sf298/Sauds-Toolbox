@@ -151,7 +151,7 @@ public final class UserManager {
      * Waits for a response from the client.
      * @return The received Msg object.
      */
-    private synchronized Msg waitMessage() {
+    private Msg waitMessage() {
         try {
             Object o = null;
             while(o==null && !Thread.currentThread().isInterrupted()) {

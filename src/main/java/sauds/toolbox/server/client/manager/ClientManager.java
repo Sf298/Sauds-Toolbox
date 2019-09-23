@@ -116,7 +116,7 @@ public final class ClientManager {
      * Sends a message to the connected server.
      * @param m The Msg object to send.
      */
-    public void sendMessage(Msg m) {
+    public synchronized void sendMessage(Msg m) {
 		if(loginReqired && !isLoggedIn() && !Msg.isPreLogin(m)) throw new RuntimeException("Not logged in!!");
         if(DEBUG) System.out.println("****\nSending: "+m.toString()+"\n****");
         try {
@@ -132,7 +132,7 @@ public final class ClientManager {
      * Waits for a response from the server.
      * @return The received Msg object.
      */
-    private synchronized Msg waitMessage() {
+    private Msg waitMessage() {
         try {
             Object o = null;
             while(o==null && !Thread.currentThread().isInterrupted()) {
