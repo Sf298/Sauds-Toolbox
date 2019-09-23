@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -132,11 +134,13 @@ public final class UserManager {
         recievingThread = null;
     }
     
+	Lock sendLock = new ReentrantLock();
     /**
      * Sends a message to the connected client.
      * @param m The Msg object to send.
      */
-    public synchronized void sendMessage(Msg m) {
+    public void sendMessage(Msg m) {
+		sendLock.lock();
         System.out.println("****\nSending: "+m.toString()+"\n****");
         try {
             oos.writeObject(m);
@@ -144,14 +148,18 @@ public final class UserManager {
         } catch (IOException ex) {
             Logger.getLogger(ClientManager.class.getName()).log(Level.SEVERE, null, ex);
             closeConnection();
-        }
+        } finally {
+			sendLock.unlock();
+		}
     }
     
+	Lock recieveLock = new ReentrantLock();
     /**
      * Waits for a response from the client.
      * @return The received Msg object.
      */
     private Msg waitMessage() {
+		recieveLock.lock();
         try {
             Object o = null;
             while(o==null && !Thread.currentThread().isInterrupted()) {
@@ -166,7 +174,9 @@ public final class UserManager {
             closeConnection();
         } catch(Exception ex) {
             Logger.getLogger(ClientManager.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } finally {
+			recieveLock.unlock();
+		}
         return null;
     }
     

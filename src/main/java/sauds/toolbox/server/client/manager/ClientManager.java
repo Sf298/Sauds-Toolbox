@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -112,11 +114,13 @@ public final class ClientManager {
         return connStatus == STATUS_LOGGED_IN;
     }
     
+	Lock sendLock = new ReentrantLock();
     /**
      * Sends a message to the connected server.
      * @param m The Msg object to send.
      */
     public synchronized void sendMessage(Msg m) {
+		sendLock.lock();
 		if(loginReqired && !isLoggedIn() && !Msg.isPreLogin(m)) throw new RuntimeException("Not logged in!!");
         if(DEBUG) System.out.println("****\nSending: "+m.toString()+"\n****");
         try {
@@ -125,14 +129,18 @@ public final class ClientManager {
         } catch (IOException ex) {
             Logger.getLogger(ClientManager.class.getName()).log(Level.SEVERE, null, ex);
             closeConnection();
-        }
+        } finally {
+			sendLock.unlock();
+		}
     }
     
+	Lock recieveLock = new ReentrantLock();
     /**
      * Waits for a response from the server.
      * @return The received Msg object.
      */
     private Msg waitMessage() {
+		recieveLock.lock();
         try {
             Object o = null;
             while(o==null && !Thread.currentThread().isInterrupted()) {
@@ -147,7 +155,9 @@ public final class ClientManager {
             closeConnection();
         } catch(ClassNotFoundException ex) {
             Logger.getLogger(ClientManager.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } finally {
+			recieveLock.unlock();
+		}
         return null;
     }
     
