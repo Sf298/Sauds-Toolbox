@@ -18,6 +18,14 @@ public class Msg implements Serializable {
     public static final int IS_LOGIN_REQ = -6;
     public static final int LOGIN_REQ_TRUE = -7;
     public static final int LOGIN_REQ_FALSE = -8;
+	
+	public static boolean isPreLogin(int action) {
+		return action==LOGIN || action==LOGIN_OK || action==LOGIN_FAIL ||
+				action==IS_LOGIN_REQ || action==LOGIN_REQ_TRUE || action==LOGIN_REQ_FALSE;
+	}
+	public static boolean isPreLogin(Msg msg) {
+		return isPreLogin(msg.getAction());
+	}
     
     private int action;
     private Serializable[] args;

@@ -117,7 +117,7 @@ public final class ClientManager {
      * @param m The Msg object to send.
      */
     public void sendMessage(Msg m) {
-		if(loginReqired && !isLoggedIn()) throw new RuntimeException("Not logged in!!");
+		if(loginReqired && !isLoggedIn() && !Msg.isPreLogin(m)) throw new RuntimeException("Not logged in!!");
         if(DEBUG) System.out.println("****\nSending: "+m.toString()+"\n****");
         try {
             oos.writeObject(m);
