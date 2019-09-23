@@ -168,7 +168,7 @@ public final class ClientManager {
     /**
      * Starts a thread that waits for and processes incoming messages.
      */
-    public void startRecievingThread() {
+    protected void startRecievingThread() {
         if(recievingThread!=null && recievingThread.isAlive())
             recievingThread.interrupt();
         
@@ -191,7 +191,7 @@ public final class ClientManager {
     /**
      * Stops the thread that waits for and processes incoming messages.
      */
-    public void stopRecievingThread() {
+    protected void stopRecievingThread() {
         if(recievingThread!=null) {
             recievingThread.interrupt();
             try {
