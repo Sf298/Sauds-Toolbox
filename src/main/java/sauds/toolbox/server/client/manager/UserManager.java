@@ -112,7 +112,7 @@ public final class UserManager {
             public void run() {
                 while(!Thread.currentThread().isInterrupted()) {
                     Msg m = waitMessage();
-                    if(m!=null && (isLoggedIn() || m.getAction()==Msg.LOGIN))
+                    if(m!=null && (isLoggedIn() || m.getAction()==Msg.LOGIN || m.getAction()==Msg.IS_LOGIN_REQ))
                         runMessageListeners(m);
 					else 
 						sendMessage(new Msg(Msg.LOGIN_FAIL));
