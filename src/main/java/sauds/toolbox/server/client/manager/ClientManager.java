@@ -217,7 +217,8 @@ public final class ClientManager {
         try {
             if(ois!=null) ois.close();
             if(oos!=null) oos.close();
-            connStatus = 0;
+			stopRecievingThread();
+            connStatus = STATUS_DISCONNECTED;
             runConnectionChangeListeners();
         } catch(IOException e) {}
     }

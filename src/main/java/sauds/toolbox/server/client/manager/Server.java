@@ -7,6 +7,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Creates a server and handles incoming connections with ClientManagers.
@@ -19,6 +21,7 @@ public class Server implements Iterable {
     
     private String name;
     private Thread serverThread;
+    private ServerSocket ss;
     private ArrayList<UserManager> users = new ArrayList<>();
     
     /**
@@ -46,13 +49,13 @@ public class Server implements Iterable {
         this.name = name;
         
         System.out.println("starting...");
-        ServerSocket ss = new ServerSocket(port);
+        ss = new ServerSocket(port);
         System.out.println("started");
         
         serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while(true) {
+                while(!Thread.interrupted()) {
                     try {
                         System.out.println("waiting for connection...");
                         Socket s = ss.accept();
@@ -102,6 +105,16 @@ public class Server implements Iterable {
     public void start() {
         serverThread.start();
     }
+	
+	public void shutdown() {
+		for(UserManager user : users) {
+			user.closeConnection();
+		}
+		serverThread.interrupt();
+		try {
+			ss.close();
+		} catch (IOException ex) {}
+	}
 	
 	
     private HashSet<MessageListenerServer> sharedMessageListeners = new HashSet<>();

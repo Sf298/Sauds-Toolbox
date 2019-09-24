@@ -172,7 +172,7 @@ public final class UserManager {
         } catch (IOException ex) {
             Logger.getLogger(ClientManager.class.getName()).log(Level.SEVERE, null, ex);
             closeConnection();
-        } catch(Exception ex) {
+        } catch(ClassNotFoundException ex) {
             Logger.getLogger(ClientManager.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
 			recieveLock.unlock();
