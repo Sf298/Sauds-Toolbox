@@ -152,7 +152,8 @@ public final class ClientManager {
             return (Msg) o;
         } catch (IOException ex) {
             Logger.getLogger(ClientManager.class.getName()).log(Level.SEVERE, null, ex);
-            closeConnection();
+			if(!Thread.currentThread().isInterrupted())
+				closeConnection();
         } catch(ClassNotFoundException ex) {
             Logger.getLogger(ClientManager.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -206,8 +207,8 @@ public final class ClientManager {
             try {
                 recievingThread.join();
             } catch (InterruptedException ex) {}
+			recievingThread = null;
         }
-        recievingThread = null;
     }
     
     /**
@@ -215,9 +216,9 @@ public final class ClientManager {
      */
     public void closeConnection() {
         try {
+			stopRecievingThread();
             if(ois!=null) ois.close();
             if(oos!=null) oos.close();
-			stopRecievingThread();
             connStatus = STATUS_DISCONNECTED;
             runConnectionChangeListeners();
         } catch(IOException e) {}
