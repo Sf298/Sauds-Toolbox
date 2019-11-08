@@ -21,7 +21,7 @@ public class PropsTester {
         p1.put("dummy4", "lol4");
         p1.put("dummy5", "lol5");
         PropertiesFile p2 = new PropertiesFile(new File("/cyphtxt.dat"));
-        p1.cloneData(p2);
+        p1.cloneDataFrom(p2);
         
         p1.save();
         p1.load();

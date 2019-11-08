@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -35,7 +36,13 @@ public class PropertiesFile {
         this.separator = separator;
     }
     
-    public void cloneData(PropertiesFile p) {
+    public PropertiesFile(PropertiesFile p) {
+        file = p.file;
+        separator = p.separator;
+        map = new TreeMap(map);
+    }
+    
+    public void cloneDataFrom(PropertiesFile p) {
         p.separator = separator;
         p.map = new TreeMap(map);
     }
@@ -51,8 +58,17 @@ public class PropertiesFile {
         return Double.parseDouble(map.get(key));
     }
     
+    public TreeMap<String, String> getMap() {
+        return map;
+    }
+    
     public void put(String key, String value) {
+		if(value==null) value = "";
         map.put(key, value.replaceAll("\n", "<!thisIsNewLine!>"));
+    }
+    
+    public String remove(String key) {
+        return map.remove(key);
     }
     
     public boolean hasKey(String key) {
@@ -67,16 +83,16 @@ public class PropertiesFile {
     public void load() {
         load(null);
     }
-    public void load(String key) {
+    public void load(String encryptionKey) {
         if(!file.exists()) {
             return;
         }
         try {
             String str = new String ( Files.readAllBytes(file.toPath()));
-            if(key == null) {
+            if(encryptionKey == null) {
                 parseString(str);
             } else {
-                parseString(Encryptor.decrypt(str, key));
+                parseString(Encryptor.decrypt(str, encryptionKey));
             }
             
         } catch (FileNotFoundException ex) {
@@ -99,16 +115,16 @@ public class PropertiesFile {
     public void save() {
         save(null);
     }
-    public void save(String key) {
+    public void save(String encryptionKey) {
         if(!file.exists()) {
             file.getParentFile().mkdirs();
         }
         try {
             FileWriter fw = new FileWriter(file);
-            if(key == null) {
+            if(encryptionKey == null) {
                 fw.write(toString());
             } else {
-                fw.write(Encryptor.encrypt(toString(), key));
+                fw.write(Encryptor.encrypt(toString(), encryptionKey));
             }
             fw.flush();
             fw.close();
