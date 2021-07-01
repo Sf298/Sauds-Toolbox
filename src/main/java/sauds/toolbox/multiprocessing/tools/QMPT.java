@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import static sauds.toolbox.multiprocessing.tools.MPT.getLRs;
-import sauds.toolbox.primitive.array.wrapper.PrimitiveList;
+
+import sauds.toolbox.data.structures.PrimitiveList;
 
 /**
  * This Queued Multi-Processing Tools (QMPT) class provides a set of tools that can be

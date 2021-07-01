@@ -5,6 +5,8 @@
  */
 package sauds.toolbox.fractions;
 
+import sauds.toolbox.data.structures.Fraction;
+
 import java.util.Random;
 
 /**
