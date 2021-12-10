@@ -1,4 +1,4 @@
-package sauds.toolbox.graphs2;
+package sauds.toolbox.graphs;
 
 import java.util.Arrays;
 import java.util.Spliterator;

@@ -1,4 +1,4 @@
-package sauds.toolbox.graphs2;
+package sauds.toolbox.graphs;
 
 import org.junit.jupiter.api.Test;
 

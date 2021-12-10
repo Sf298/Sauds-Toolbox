@@ -1,4 +1,4 @@
-package sauds.toolbox.graphs2;
+package sauds.toolbox.graphs;
 
 import java.util.*;
 import java.util.function.Predicate;
