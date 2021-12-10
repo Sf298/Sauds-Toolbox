@@ -9,8 +9,8 @@ import static java.util.Objects.nonNull;
 
 public class Node<T> {
 
-    T value;
-    Set<Node<T>> adjacent;
+    public T value;
+    public Set<Node<T>> adjacent;
 
     public Node(T value) {
         this(value, null);
