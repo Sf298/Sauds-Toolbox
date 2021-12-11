@@ -1,10 +1,10 @@
 package sauds.toolbox.graphs;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import static java.util.Arrays.stream;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public class GridGraph<T> {
@@ -22,7 +22,7 @@ public class GridGraph<T> {
             List<GridNode> gi = new ArrayList<>();
             this.grid.add(gi);
             for (int j = 0; j < grid[i].length; j++) {
-                gi.add(new GridNode(grid[i][j], new int[] {i,j}));
+                gi.add(new GridNode(grid[i][j], new Coord(i,j)));
             }
         }
 
@@ -43,6 +43,13 @@ public class GridGraph<T> {
         }
     }
 
+    public int size() {
+        return grid.size() * grid.get(0).size();
+    }
+
+    public GridNode get(Coord c) {
+        return get(c.get(0), c.get(1));
+    }
     public GridNode get(int i, int j) {
         if (i < 0 || j < 0 || i >= grid.size() || j >= grid.get(i).size()) {
             return null;
@@ -53,24 +60,60 @@ public class GridGraph<T> {
 
     public class GridNode extends Node<T> {
 
-        int[] coord;
+        public Coord coord;
 
-        public GridNode(T value, int[] coord) {
+        public GridNode(T value, Coord coord) {
             this(value, coord, null);
         }
 
-        public GridNode(T value, int[] coord, Collection<Node<T>> adjacent) {
+        public GridNode(T value, Coord coord, Collection<Node<T>> adjacent) {
             super(value, adjacent);
             this.coord = coord;
         }
 
         public GridNode getAdjacent(int di, int dj) {
-            return get(coord[0]+di, coord[1]+dj);
+            return get(coord.get(0)+di, coord.get(1)+dj);
         }
 
         @Override
         public String toString() {
-            return "(" + Arrays.toString(coord) + ":" + value + ")";
+            return "{" + coord + ":" + value + "}";
+        }
+
+    }
+
+    public static class Coord {
+
+        private final int[] coord;
+        private Integer hashCache;
+
+        public Coord(int... coord) {
+            this.coord = Arrays.copyOf(coord, coord.length);
+        }
+
+        public int get(int index) {
+            return coord[index];
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Coord coord1 = (Coord) o;
+            return Arrays.equals(coord, coord1.coord);
+        }
+
+        @Override
+        public int hashCode() {
+            if (isNull(hashCache)) {
+                hashCache = Arrays.hashCode(coord);
+            }
+            return hashCache;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + stream(coord).mapToObj(Integer::toString).collect(Collectors.joining(",")) + ')';
         }
 
     }

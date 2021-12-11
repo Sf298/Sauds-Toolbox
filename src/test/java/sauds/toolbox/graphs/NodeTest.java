@@ -5,13 +5,14 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NodeTest {
 
     @Test
     void breadthFirstBasic() {
-        Integer[][] grid = new Integer[][] {new Integer[] {1,2,3,4,5}};
+        Integer[][] grid = new Integer[][] {new Integer[] {3,2,1,2,3}};
         GridGraph<Integer> graph = new GridGraph<>(grid, 4);
 
         List<Integer> actual = new ArrayList<>();
@@ -19,25 +20,35 @@ class NodeTest {
             actual.add(n.value);
         }
 
-        assertThat(actual).isEqualTo(List.of(3,4,2,5,1));
+        assertThat(actual).isEqualTo(List.of(1,2,2,3,3));
     }
 
     @Test
     void breadthFirstFiltered() {
-        Integer[][] grid = new Integer[][] {new Integer[] {1,2,3,4,5,6,7,2}};
+        Integer[][] grid = new Integer[][] {new Integer[] {3,2,1,2,3,4,5,1}};
         GridGraph<Integer> graph = new GridGraph<>(grid, 4);
 
         List<Integer> actual = new ArrayList<>();
-        for (Node<Integer> n : graph.get(0, 2).breadthFirst(n -> n.value < 7)) {
+        for (Node<Integer> n : graph.get(0, 2).breadthFirst(n -> n.value < 5)) {
             actual.add(n.value);
         }
 
-        assertThat(actual).isEqualTo(List.of(3,2,4,1,5,6));
+        assertThat(actual).isEqualTo(List.of(1,2,2,3,3,4));
+    }
+
+    @Test
+    void breadthFirstFilteredPreProcessed() {
+        Integer[][] grid = new Integer[][] {new Integer[] {1,2,3,4,5,6,7,2}};
+        GridGraph<Integer> graph = new GridGraph<>(grid, 4);
+
+        graph.get(0,0).breadthFirstPrefiltered(n -> n.value < 8, n -> n.adjacent.forEach(n1 -> n1.value++));
+
+        assertThat(graph.grid.get(0).stream().map(n -> n.value).collect(toList())).isEqualTo(List.of(2,4,5,6,7,7,8,2));
     }
 
     @Test
     void depthFirstBasic() {
-        Integer[][] grid = new Integer[][] {new Integer[] {1,2,3,4,5}};
+        Integer[][] grid = new Integer[][] {new Integer[] {3,2,1,2,3}};
         GridGraph<Integer> graph = new GridGraph<>(grid, 4);
 
         List<Integer> actual = new ArrayList<>();
@@ -45,19 +56,24 @@ class NodeTest {
             actual.add(n.value);
         }
 
-        assertThat(actual).isEqualTo(List.of(3,4,5,2,1));
+        assertThat(actual).isEqualTo(List.of(1,2,3,2,3));
     }
 
     @Test
     void testDepthFirst() {
-        Integer[][] grid = new Integer[][] {new Integer[] {1,2,3,4,5,6,7,2}};
+        Integer[][] grid = new Integer[][] {new Integer[] {3,2,1,2,3,4,1}};
         GridGraph<Integer> graph = new GridGraph<>(grid, 4);
 
         List<Integer> actual = new ArrayList<>();
-        for (Node<Integer> n : graph.get(0, 2).depthFirst(n -> n.value < 7)) {
+        for (Node<Integer> n : graph.get(0, 2).depthFirst(n -> n.value < 4)) {
             actual.add(n.value);
         }
 
-        assertThat(actual).isEqualTo(List.of(3,4,5,6,2,1));
+        assertThat(actual).isEqualTo(List.of(1,2,3,2,3));
     }
+
+    private static GridGraph<Integer>.GridNode toGN(Node<Integer> n) {
+        return (GridGraph<Integer>.GridNode) n;
+    }
+
 }

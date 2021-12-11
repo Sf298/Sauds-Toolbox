@@ -1,6 +1,7 @@
 package sauds.toolbox.graphs;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static java.util.Collections.singleton;
@@ -24,11 +25,40 @@ public class Node<T> {
         }
     }
 
+
+    /**
+     * Creates an Iterable to iterate breadth first throughout the graph starting from this node.
+     * @return An iterable object that iterates breadth first through the graph.
+     */
     public Iterable<Node<T>> breadthFirst() {
         return breadthFirst(n -> true);
     }
 
+    /**
+     * Creates an Iterable to iterate breadth first throughout the graph starting from this node.
+     * @param predicate A predicated to decide whether a node can be scanned.
+     * @return An iterable object that iterates breadth first through the graph.
+     */
     public Iterable<Node<T>> breadthFirst(Predicate<Node<T>> predicate) {
+        return breadthFirst(predicate, null);
+    }
+
+    /**
+     * Iterate breadth first throughout the graph starting from this node.
+     * @param predicate A predicated to decide whether a node can be scanned.
+     * @param preProcess A method to process a node (or its neighbours) before it's neighbors are scanned.
+     */
+    public void breadthFirstPrefiltered(Predicate<Node<T>> predicate, Consumer<Node<T>> preProcess) {
+        breadthFirst(predicate, preProcess).forEach(n -> {});
+    }
+
+    /**
+     * Creates an Iterable to iterate breadth first throughout the graph starting from this node.
+     * @param predicate A predicated to decide whether a node can be scanned.
+     * @param preProcess A method to process a node (or its neighbours) before it's neighbors are scanned.
+     * @return An iterable object that iterates breadth first through the graph.
+     */
+    private Iterable<Node<T>> breadthFirst(Predicate<Node<T>> predicate, Consumer<Node<T>> preProcess) {
         Node<T> thiz = this;
 
         return () -> new Iterator<>() {
@@ -38,6 +68,7 @@ public class Node<T> {
 
             @Override
             public boolean hasNext() {
+                q.removeIf(n -> !predicate.test(n));
                 return !q.isEmpty();
             }
 
@@ -48,10 +79,14 @@ public class Node<T> {
                     return null;
                 }
 
+                if (nonNull(preProcess)) {
+                    preProcess.accept(curr);
+                }
+
                 curr.adjacent.stream()
                         .filter(n -> !scanned.contains(n))
-                        .peek(scanned::add)
                         .filter(predicate)
+                        .peek(scanned::add)
                         .forEach(q::add);
 
                 return curr;
@@ -59,11 +94,40 @@ public class Node<T> {
         };
     }
 
+
+    /**
+     * Creates an Iterable to iterate depth first throughout the graph starting from this node.
+     * @return An iterable object that iterates depth first through the graph.
+     */
     public Iterable<Node<T>> depthFirst() {
         return depthFirst(n -> true);
     }
 
+    /**
+     * Creates an Iterable to iterate depth first throughout the graph starting from this node.
+     * @param predicate A predicated to decide whether a node can be scanned.
+     * @return An iterable object that iterates depth first through the graph.
+     */
     public Iterable<Node<T>> depthFirst(Predicate<Node<T>> predicate) {
+        return depthFirst(predicate, null);
+    }
+
+    /**
+     * Creates an Iterable to iterate depth first throughout the graph starting from this node.
+     * @param predicate A predicated to decide whether a node can be scanned.
+     * @param preProcess A method to process a node (or its neighbours) before it's neighbors are scanned.
+     */
+    public void depthFirstPrefiltered(Predicate<Node<T>> predicate, Consumer<Node<T>> preProcess) {
+        depthFirst(predicate, preProcess).forEach(n -> {});
+    }
+
+    /**
+     * Creates an Iterable to iterate depth first throughout the graph starting from this node.
+     * @param predicate A predicated to decide whether a node can be scanned.
+     * @param preProcess A method to process a node (or its neighbours) before it's neighbors are scanned.
+     * @return An iterable object that iterates depth first through the graph.
+     */
+    private Iterable<Node<T>> depthFirst(Predicate<Node<T>> predicate, Consumer<Node<T>> preProcess) {
         Node<T> thiz = this;
 
         return () -> new Iterator<>() {
@@ -74,6 +138,7 @@ public class Node<T> {
 
             @Override
             public boolean hasNext() {
+                s.removeIf(n -> !predicate.test(n));
                 return !s.isEmpty();
             }
 
@@ -84,10 +149,14 @@ public class Node<T> {
                     return null;
                 }
 
+                if (nonNull(preProcess)) {
+                    preProcess.accept(curr);
+                }
+
                 curr.adjacent.stream()
                         .filter(n -> !scanned.contains(n))
-                        .peek(scanned::add)
                         .filter(predicate)
+                        .peek(scanned::add)
                         .forEach(s::add);
 
                 return curr;
