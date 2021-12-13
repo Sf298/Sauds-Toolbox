@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.singleton;
 import static java.util.Objects.isNull;
@@ -167,8 +168,7 @@ public class Node<T> {
 
 
     public Iterable<List<Node<T>>> walks(Node<T> target) {
-        Set<Node<T>> scanned = new HashSet<>();
-        return walks(target);
+        return walks(target, (tNode, tNode2) -> true);
     }
 
     public Iterable<List<Node<T>>> walks(Node<T> target, BiPredicate<Node<T>, Node<T>> predicate) {
@@ -176,70 +176,100 @@ public class Node<T> {
 
         return () -> new Iterator<>() {
 
-            private final List<Node<T>> current = new ArrayList<>(List.of(thiz));
-            private boolean initialised = false;
+            private boolean isInit = false;
+            private Path nextPath = new Path(List.of(thiz));
+            private final List<List<Node<T>>> siblings = new ArrayList<>(List.of(List.of(thiz)));
+            private final List<Integer> treeIndex = new ArrayList<>(List.of(0));
+
+            private void tryInit() {
+                if (isInit) return;
+
+                isInit = true;
+                dive();
+            }
 
             @Override
             public boolean hasNext() {
-                return current.stream()
-                        .anyMatch(n -> nonNull(nextSibling(current, n)));
+                tryInit();
+                return nextPath != null;
             }
 
             @Override
             public List<Node<T>> next() {
-                if (!initialised) {
-                    dive();
-                    initialised = true;
-                }
-                do {
-                    inc();
-                    dive();
-                } while (!current.get(current.size()-1).equals(target));
+                tryInit();
+                while (true) {
+                    Path selectedPath = nextPath;
+                    List<Node<T>> lastSiblings = siblings.get(siblings.size() - 1);
 
-                return new ArrayList<>(current);
+                    int tailIndexValue = treeIndex.get(treeIndex.size() - 1);
+                    if (tailIndexValue < lastSiblings.size() - 1) { // not end of folder
+                        treeIndex.set(treeIndex.size() - 1, tailIndexValue + 1);
+                        nextPath = new Path(siblings, treeIndex);
+                    } else {
+                        goUp();
+                    }
+                    if (nextPath != null) {
+                        dive();
+                    }
+                    if (selectedPath.tail().equals(target)) {
+                        return selectedPath.getPath();
+                    }
+                }
+            }
+
+            private void goUp() {
+                while(treeIndex.get(treeIndex.size()-1) == siblings.get(siblings.size()-1).size()-1) {
+                    if(treeIndex.size() == 1) {
+                        nextPath = null;
+                        return;
+                    }
+                    siblings.remove(siblings.size()-1);
+                    treeIndex.remove(treeIndex.size()-1);
+                }
+                treeIndex.set(treeIndex.size()-1, treeIndex.get(treeIndex.size()-1) + 1);
+                nextPath = new Path(siblings, treeIndex);
             }
 
             private void dive() {
-                while (true) {
-                    Node<T> end = current.get(current.size()-1);
-                    if (target.equals(end)) return;
-
-                    Optional<Node<T>> newEnd = end.adjacent.stream()
-                            .filter(n -> predicate.test(end, n))
-                            .filter(n -> !current.contains(n))
-                            .findFirst();
-                    if (newEnd.isEmpty()) return;
-
-                    current.add(newEnd.get());
-                }
-            }
-            private Node<T> nextSibling(Collection<Node<T>> siblings, Node<T> last) {
-                for (Iterator<Node<T>> i = siblings.iterator(); i.hasNext();) {
-                    Node<T> n = i.next();
-                    if (n.equals(last)) {
-                        Node<T> n2 = i.next();
-                        while (current.contains(n2) && i.hasNext())
-                            n2 = i.next();
-                        return current.contains(n2) ? null : n2;
-                    }
-                }
-                return null;
-            }
-            private void trimToSize(int newSize) {
-                while (current.size() > newSize) {
-                    current.remove(current.size() - 1);
-                }
-            }
-            private void inc() {
-                for (int i = current.size()-1; i >= 1; i--) {
-                    Node<T> end = current.get(i);
-                    Node<T> parent = current.get(i-1);
-                    Node<T> nextSibling = nextSibling(parent.adjacent, end);
-                    if (nonNull(nextSibling)) {
-                        current.set(i, nextSibling);
-                        trimToSize(i+1);
+                while(nextPath.tail().adjacent.stream().anyMatch(n -> !target.equals(n) && !nextPath.contains(n))) {
+                    List<Node<T>> newSiblings = nextPath.tail().adjacent.stream()
+                            .filter(n -> !nextPath.contains(n))
+                            .collect(Collectors.toList());
+                    if(newSiblings.isEmpty()) {
                         return;
                     }
+
+                    siblings.add(newSiblings);
+                    treeIndex.add(0);
+                    nextPath = new Path(siblings, treeIndex);
+                }
+            }
+
+            class Path {
+                private final List<Node<T>> path;
+                private final Set<Node<T>> nodes;
+                public Path(List<Node<T>> path) {
+                    this.path = path;
+                    this.nodes = new HashSet<>(path);
+                }
+                public Path(List<List<Node<T>>> siblings, List<Integer> treeIndex) {
+                    path = new ArrayList<>(treeIndex.size());
+                    for (int i = 0; i < treeIndex.size(); i++) {
+                        path.add(siblings.get(i).get(treeIndex.get(i)));
+                    }
+                    nodes = new HashSet<>(path);
+                }
+                public List<Node<T>> getPath() {
+                    return path;
+                }
+                public Set<Node<T>> getNodes() {
+                    return nodes;
+                }
+                public boolean contains(Node<T> n) {
+                    return nodes.contains(n);
+                }
+                public Node<T> tail() {
+                    return path.get(path.size()-1);
                 }
             }
 
