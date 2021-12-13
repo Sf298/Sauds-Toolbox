@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiPredicate;
 
+import static java.lang.Character.isUpperCase;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -70,6 +72,31 @@ class NodeTest {
         }
 
         assertThat(actual).isEqualTo(List.of(1,2,3,2,3));
+    }
+
+    @Test
+    void testWalks() {
+        EdgeGraph<String> graph = new EdgeGraph<>(List.of(
+                List.of("start", "A"),
+                List.of("start", "b"),
+                List.of("A", "c"),
+                List.of("c", "A"),
+                List.of("A", "b"),
+                List.of("b", "A"),
+                List.of("b", "d"),
+                List.of("d", "b"),
+                List.of("A", "end"),
+                List.of("b", "end")
+        ));
+
+        BiPredicate<List<Node<String>>, Node<String>> predicate = (path, newNode) -> isUpperCase(newNode.value.charAt(0)) || !path.contains(newNode);
+
+        List<List<Node<String>>> actual = new ArrayList<>();
+        for (List<Node<String>> path : graph.get("start").walks(graph.get("end"), predicate)) {
+            actual.add(path);
+        }
+
+        assertThat(actual).hasSize(10);
     }
 
     private static GridGraph<Integer>.GridNode toGN(Node<Integer> n) {
