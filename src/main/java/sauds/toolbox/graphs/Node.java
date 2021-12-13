@@ -1,6 +1,7 @@
 package sauds.toolbox.graphs;
 
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -11,7 +12,7 @@ import static java.util.Objects.nonNull;
 public class Node<T> {
 
     public T value;
-    public Set<Node<T>> adjacent;
+    public LinkedHashSet<Node<T>> adjacent;
 
     public Node(T value) {
         this(value, null);
@@ -19,7 +20,7 @@ public class Node<T> {
 
     public Node(T value, Collection<Node<T>> adjacent) {
         this.value = value;
-        this.adjacent = new HashSet<>();
+        this.adjacent = new LinkedHashSet<>();
         if (nonNull(adjacent)) {
             this.adjacent.addAll(adjacent);
         }
@@ -161,6 +162,77 @@ public class Node<T> {
 
                 return curr;
             }
+        };
+    }
+
+
+    public Iterable<List<Node<T>>> walks(Node<T> target) {
+        Set<Node<T>> scanned = new HashSet<>();
+        return walks(target);
+    }
+
+    public Iterable<List<Node<T>>> walks(Node<T> target, BiPredicate<Node<T>, Node<T>> predicate) {
+        Node<T> thiz = this;
+
+        return () -> new Iterator<>() {
+
+            private final List<Node<T>> current = new ArrayList<>(List.of(thiz));
+            private boolean inited = false;
+
+            @Override
+            public boolean hasNext() {
+                return current.stream()
+                        .anyMatch(n -> nonNull(next(current, n)));
+            }
+
+            @Override
+            public List<Node<T>> next() {
+                if (!inited) {
+                    dive();
+                    if (target.equals(last(current)))
+                        return new ArrayList<>(current);
+                    inited = true;
+                }
+
+                Node<T> end = last(current);
+
+            }
+
+            private void dive() {
+                while (true) {
+                    Node<T> end = last(current);
+                    if (target.equals(end)) return;
+
+                    Optional<Node<T>> newEnd = end.adjacent.stream()
+                            .filter(n -> predicate.test(end, n))
+                            .filter(n -> !current.contains(n))
+                            .findFirst();
+                    if (newEnd.isEmpty()) return;
+
+                    current.add(newEnd.get());
+                }
+            }
+            private Node<T> last(List<Node<T>> list) {
+                return list.get(list.size()-1);
+            }
+            private Node<T> next(Collection<Node<T>> collection, Node<T> last) {
+                for (Iterator<Node<T>> i = collection.iterator(); i.hasNext();) {
+                    Node<T> n = i.next();
+                    if (n.equals(last)) {
+                        return i.next();
+                    }
+                }
+                return null;
+            }
+            private Node<T> next(List<Node<T>> list) {
+                Node<T> end = last(current);
+                for (int i = list.size()-1; i >= 1; i--) {
+                    if (nonNull(next()) {
+
+                    }
+                }
+            }
+
         };
     }
 
