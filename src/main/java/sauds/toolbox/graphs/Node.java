@@ -177,30 +177,31 @@ public class Node<T> {
         return () -> new Iterator<>() {
 
             private final List<Node<T>> current = new ArrayList<>(List.of(thiz));
-            private boolean inited = false;
+            private boolean initialised = false;
 
             @Override
             public boolean hasNext() {
                 return current.stream()
-                        .anyMatch(n -> nonNull(next(current, n)));
+                        .anyMatch(n -> nonNull(nextSibling(current, n)));
             }
 
             @Override
             public List<Node<T>> next() {
-                if (!inited) {
+                if (!initialised) {
                     dive();
-                    if (target.equals(last(current)))
-                        return new ArrayList<>(current);
-                    inited = true;
+                    initialised = true;
                 }
+                do {
+                    inc();
+                    dive();
+                } while (!current.get(current.size()-1).equals(target));
 
-                Node<T> end = last(current);
-
+                return new ArrayList<>(current);
             }
 
             private void dive() {
                 while (true) {
-                    Node<T> end = last(current);
+                    Node<T> end = current.get(current.size()-1);
                     if (target.equals(end)) return;
 
                     Optional<Node<T>> newEnd = end.adjacent.stream()
@@ -212,23 +213,32 @@ public class Node<T> {
                     current.add(newEnd.get());
                 }
             }
-            private Node<T> last(List<Node<T>> list) {
-                return list.get(list.size()-1);
-            }
-            private Node<T> next(Collection<Node<T>> collection, Node<T> last) {
-                for (Iterator<Node<T>> i = collection.iterator(); i.hasNext();) {
+            private Node<T> nextSibling(Collection<Node<T>> siblings, Node<T> last) {
+                for (Iterator<Node<T>> i = siblings.iterator(); i.hasNext();) {
                     Node<T> n = i.next();
                     if (n.equals(last)) {
-                        return i.next();
+                        Node<T> n2 = i.next();
+                        while (current.contains(n2) && i.hasNext())
+                            n2 = i.next();
+                        return current.contains(n2) ? null : n2;
                     }
                 }
                 return null;
             }
-            private Node<T> next(List<Node<T>> list) {
-                Node<T> end = last(current);
-                for (int i = list.size()-1; i >= 1; i--) {
-                    if (nonNull(next()) {
-
+            private void trimToSize(int newSize) {
+                while (current.size() > newSize) {
+                    current.remove(current.size() - 1);
+                }
+            }
+            private void inc() {
+                for (int i = current.size()-1; i >= 1; i--) {
+                    Node<T> end = current.get(i);
+                    Node<T> parent = current.get(i-1);
+                    Node<T> nextSibling = nextSibling(parent.adjacent, end);
+                    if (nonNull(nextSibling)) {
+                        current.set(i, nextSibling);
+                        trimToSize(i+1);
+                        return;
                     }
                 }
             }
