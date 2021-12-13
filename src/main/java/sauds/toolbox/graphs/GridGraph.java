@@ -11,6 +11,11 @@ public class GridGraph<T> {
 
     public List<List<GridNode>> grid;
 
+    /**
+     * Create a graph from an array of values.
+     * @param grid The grid of values.
+     * @param adjacency How the nodes link together. Can be 4 or 8.
+     */
     public GridGraph(T[][] grid, int adjacency) {
         if (adjacency != 4 && adjacency != 8) {
             throw new IllegalArgumentException("Invalid adjacency '" + adjacency + "'");
@@ -77,7 +82,7 @@ public class GridGraph<T> {
 
         @Override
         public String toString() {
-            return "{" + coord + ":" + value + "}";
+            return coord + ":" + value;
         }
 
     }

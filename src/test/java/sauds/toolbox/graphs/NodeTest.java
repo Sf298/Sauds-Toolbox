@@ -92,7 +92,7 @@ class NodeTest {
         BiPredicate<List<Node<String>>, Node<String>> predicate = (path, newNode) -> isUpperCase(newNode.value.charAt(0)) || !path.contains(newNode);
 
         List<List<Node<String>>> actual = new ArrayList<>();
-        for (List<Node<String>> path : graph.get("start").walks(graph.get("end"), predicate)) {
+        for (List<Node<String>> path : graph.getByValue("start").walks(graph.getByValue("end"), predicate)) {
             actual.add(path);
         }
 
