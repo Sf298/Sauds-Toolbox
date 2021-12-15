@@ -1,6 +1,8 @@
 /target/
 .project
 .classpath
-/.idea
+/.idea/
 /.gradle
 /.settings
+/nb-configuration.xml
+/MyToolBox.iml
