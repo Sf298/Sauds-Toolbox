@@ -1,6 +1,9 @@
 package sauds.toolbox.graphs;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
@@ -51,6 +54,13 @@ public class GridGraph<T> {
     public int size() {
         return grid.size() * grid.get(0).size();
     }
+    public int size(int dimension) {
+        List<?> l = grid;
+        for (int i = 0; i < dimension; i++) {
+            l = grid.get(0);
+        }
+        return l.size();
+    }
 
     public GridNode get(Coord c) {
         return get(c.get(0), c.get(1));
@@ -61,6 +71,14 @@ public class GridGraph<T> {
         }
         List<GridNode> gridNode = grid.get(i);
         return gridNode.get(j);
+    }
+    public GridNode getWrap(Coord c) {
+        return getWrap(c.get(0), c.get(1));
+    }
+    public GridNode getWrap(int i, int j) {
+        if (i < 0) i = size(0) + i;
+        if (j < 0) j = size(1) + j;
+        return get(i,j);
     }
 
     public class GridNode extends Node<T> {

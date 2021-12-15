@@ -1,10 +1,10 @@
 package sauds.toolbox.graphs;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.singleton;
 import static java.util.Objects.isNull;
@@ -277,6 +277,47 @@ public class Node<T> {
             }
 
         };
+    }
+
+    /**
+     * Find all possible paths from one node to another.
+     * @param target The destination node.
+     * @param edgeWeight A function that calculates the weight of moving from the left node to the right node.
+     * @return The shortest possible path from this not to the target.
+     */
+    public List<Node<T>> shortestWalk(Node<T> target, BiFunction<Node<T>, Node<T>, Long> edgeWeight) {
+        Map<Node<T>, Long> distances = new HashMap<>(Map.of(this, 0L));
+        for (Node<T> n : breadthFirst()) {
+            if (n.equals(target)) break;
+            for (Node<T> ne : n.adjacent) {
+                Long weight = edgeWeight.apply(n,ne);
+                if (isNull(weight)) continue;
+                long oldDist = distances.getOrDefault(ne, Long.MAX_VALUE);
+                long newDist = distances.get(n) + weight;
+                if (oldDist > newDist) {
+                    distances.put(ne, newDist);
+                }
+            }
+        }
+
+        List<Node<T>> path = new ArrayList<>(List.of(target));
+        while (true) {
+            Node<T> n = path.get(path.size()-1);
+            if (n.equals(this)) break;
+
+            Node<T> minNe = null;
+            for (Node<T> ne : n.adjacent) {
+                if (!distances.containsKey(ne)) continue;
+                if (minNe == null || distances.get(ne) < distances.get(minNe)) {
+                    minNe = ne;
+                }
+            }
+
+            path.add(minNe);
+        }
+
+        Collections.reverse(path);
+        return path;
     }
 
     @Override
