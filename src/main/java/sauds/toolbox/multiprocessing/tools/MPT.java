@@ -1,7 +1,7 @@
 
 package sauds.toolbox.multiprocessing.tools;
 
-import sauds.toolbox.data.structures.PrimitiveList;
+import sauds.toolbox.data.wrappers.PrimitiveList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

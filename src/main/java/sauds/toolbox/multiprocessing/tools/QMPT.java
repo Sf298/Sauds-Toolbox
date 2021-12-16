@@ -7,7 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import sauds.toolbox.data.structures.PrimitiveList;
+import sauds.toolbox.data.structures.Pair;
+import sauds.toolbox.data.wrappers.PrimitiveList;
 
 /**
  * This Queued Multi-Processing Tools (QMPT) class provides a set of tools that can be
@@ -114,12 +115,7 @@ public class QMPT {
      * @param runner The runnable to call on each key-value pair.
      */
     public static <K,V> void run(int nprocs, Map<K,V> map, MTPMapRunnable<K,V> runner) {
-		run(nprocs, map.entrySet(), new MTPIterableRunnable<Map.Entry<K, V>>() {
-			@Override
-			public void iter(int procID, Iterable<Map.Entry<K, V>> iterable, Map.Entry<K, V> val) {
-				runner.iter(procID, val.getKey(), val.getValue());
-			}
-		});
+		run(nprocs, map.entrySet(), (procID, iterable, val) -> runner.iter(procID, val.getKey(), val.getValue()));
     }
 	
     /**
@@ -131,12 +127,7 @@ public class QMPT {
      * @param runner The runnable to call on each key-value pair.
      */
     public static <K,V> void runPop(int nprocs, Map<K,V> map, MTPMapRunnable<K,V> runner) {
-		runPop(nprocs, map.entrySet(), new MTPListRunnable<Map.Entry<K, V>>() {
-			@Override
-			public void iter(int procID, int idx, Map.Entry<K, V> val) {
-				runner.iter(procID, val.getKey(), val.getValue());
-			}
-		});
+		runPop(nprocs, map.entrySet(), (procID, idx, val) -> runner.iter(procID, val.getKey(), val.getValue()));
     }
 	
     
@@ -155,23 +146,20 @@ public class QMPT {
 		Thread[] t = new Thread[nprocs];
 		for(int j=0; j<nprocs; j++) {
 			int procID = j;
-			t[j] = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						while(true) {
-							int pos = next(stop, i, step);
-							runner.iter(procID, pos, pos);
-						}
-					} catch(IndexOutOfBoundsException ex) {}
-				}
+			t[j] = new Thread(() -> {
+				try {
+					while(true) {
+						int pos = next(stop, i, step);
+						runner.iter(procID, pos, pos);
+					}
+				} catch(IndexOutOfBoundsException ignored) {}
 			});
 			t[j].start();
 		}
 		for(int j=0; j<nprocs; j++) {
 			try {
 				t[j].join();
-			} catch (InterruptedException ex) {}
+			} catch (InterruptedException ignored) {}
 		}
     }
     
@@ -188,23 +176,20 @@ public class QMPT {
 		Thread[] t = new Thread[nprocs];
 		for(int j=0; j<nprocs; j++) {
 			int procID = j;
-			t[j] = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						while(true) {
-							int pos = next(list.size(), i);
-							runner.iter(procID, pos, list.get(pos));
-						}
-					} catch(IndexOutOfBoundsException ex) {}
-				}
+			t[j] = new Thread(() -> {
+				try {
+					while(true) {
+						int pos = next(list.size(), i);
+						runner.iter(procID, pos, list.get(pos));
+					}
+				} catch(IndexOutOfBoundsException ignored) {}
 			});
 			t[j].start();
 		}
 		for(int j=0; j<nprocs; j++) {
 			try {
 				t[j].join();
-			} catch (InterruptedException ex) {}
+			} catch (InterruptedException ignored) {}
 		}
     }
 	
@@ -222,22 +207,19 @@ public class QMPT {
 		Iterator<T> iter = iterable.iterator();
 		for(int j=0; j<nprocs; j++) {
 			int procID = j;
-			t[j] = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						while(true) {
-							runner.iter(procID, iterable, next(iter));
-						}
-					} catch(IndexOutOfBoundsException ex) {}
-				}
+			t[j] = new Thread(() -> {
+				try {
+					while(true) {
+						runner.iter(procID, iterable, next(iter));
+					}
+				} catch(IndexOutOfBoundsException ignored) {}
 			});
 			t[j].start();
 		}
 		for(int j=0; j<nprocs; j++) {
 			try {
 				t[j].join();
-			} catch (InterruptedException ex) {}
+			} catch (InterruptedException ignored) {}
 		}
     }
 	
@@ -246,7 +228,7 @@ public class QMPT {
      * calls with the same procID are run sequentially and are therefore thread
      * safe. This allows each thread to consolidate its data into a dedicated variable or array.
      * @param nprocs The number of processors to use.
-     * @param list The list to loop through.
+     * @param c The collection to loop through.
      * @param runner The runnable to call on each value in the List.
      */
     public static <T> void runPop(int nprocs, Collection<T> c, MTPListRunnable<T> runner) {
@@ -254,23 +236,20 @@ public class QMPT {
 		Thread[] t = new Thread[nprocs];
 		for(int j=0; j<nprocs; j++) {
 			int procID = j;
-			t[j] = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						while(true) {
-							Object[] nxt = popNext(c, i);
-							runner.iter(procID, (Integer)nxt[0], (T) nxt[1]);
-						}
-					} catch(IndexOutOfBoundsException ex) {}
-				}
+			t[j] = new Thread(() -> {
+				try {
+					while(true) {
+						Pair<Integer, T> nxt = popNext(c, i);
+						runner.iter(procID, nxt.getKey(), nxt.getValue());
+					}
+				} catch(IndexOutOfBoundsException ignored) {}
 			});
 			t[j].start();
 		}
 		for(int j=0; j<nprocs; j++) {
 			try {
 				t[j].join();
-			} catch (InterruptedException ex) {}
+			} catch (InterruptedException ignored) {}
 		}
     }
 	
@@ -287,7 +266,7 @@ public class QMPT {
 	private static synchronized <T> T next(Iterator<T> iter) {
 		return iter.next();
 	}
-	private static synchronized <T> Object[] popNext(Collection<T> c, int[] i) {
+	private static synchronized <T> Pair<Integer, T> popNext(Collection<T> c, int[] i) {
 		int out = i[0];
 		if(c.isEmpty()) throw new IndexOutOfBoundsException();
 		T nxt = null;
@@ -297,7 +276,7 @@ public class QMPT {
 		}
 		c.remove(nxt);
 		i[0] = out + 1;
-		return new Object[]{out, nxt};
+		return Pair.of(out, nxt);
 	}
 	
 }
