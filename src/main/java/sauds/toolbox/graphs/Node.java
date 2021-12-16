@@ -1,14 +1,19 @@
 package sauds.toolbox.graphs;
 
+import sauds.toolbox.data.structures.Pair;
+import sauds.toolbox.data.structures.PriorityTreeQueue;
+
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static java.util.Collections.singleton;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toList;
 
 public class Node<T> {
 
@@ -92,6 +97,78 @@ public class Node<T> {
                         .forEach(q::add);
 
                 return curr;
+            }
+        };
+    }
+
+
+    /**
+     * Creates an Iterable to iterate breadth first throughout the graph starting from this node. Prioritised by
+     * smallest weighted distance from the start.
+     * @param edgeWeight A function to calculate the weight of moving from one node to the next. If <code>null</code>,
+     *                  the edge will not be traversed.
+     * @return An iterable object that iterates breadth first through the graph. The returned pair are the current node
+     * and its distance from the start.
+     */
+    public Iterable<Pair<Node<T>, Long>> breadthFirstWeighted(BiFunction<Node<T>, Node<T>, Long> edgeWeight) {
+        return breadthFirstWeighted(edgeWeight, null);
+    }
+
+    /**
+     * Creates an Iterable to iterate breadth first throughout the graph starting from this node. Prioritised by
+     * smallest weighted distance from the start.
+     * @param edgeWeight A function to calculate the weight of moving from one node to the next. If <code>null</code>,
+     *                  the edge will not be traversed.
+     * @param preProcess A method to process a node (or its neighbours) before it's neighbors are scanned.
+     * @return An iterable object that iterates breadth first through the graph. The returned pair are the current node
+     * and its distance from the start.
+     */
+    public Iterable<Pair<Node<T>, Long>> breadthFirstWeighted(BiFunction<Node<T>, Node<T>, Long> edgeWeight,
+                                                              Consumer<Node<T>> preProcess) {
+        Node<T> thiz = this;
+
+        return () -> new Iterator<>() {
+
+            final PriorityTreeQueue<Node<T>> q = new PriorityTreeQueue<>(Map.of(thiz, 0L));
+            final Map<Node<T>, Long> scanned = new HashMap<>(Map.of(thiz, 0L));
+
+            @Override
+            public boolean hasNext() {
+                return !q.isEmpty();
+            }
+
+            @Override
+            public Pair<Node<T>, Long> next() {
+                Node<T> curr = q.poll();
+                if (isNull(curr)) {
+                    return null;
+                }
+
+                for (Node<T> adj : curr.adjacent) {
+                    if (nonNull(preProcess)) {
+                        preProcess.accept(curr);
+                    }
+
+                    Long weight = edgeWeight.apply(curr, adj);
+                    if (isNull(weight)) continue;
+
+                    long newDist = scanned.get(curr)+weight;
+                    if (!scanned.containsKey(adj) || newDist < scanned.get(adj)) {
+                        scanned.put(adj, newDist);
+                    } else {
+                        continue;
+                    }
+
+                    Long priority = q.getPriority(adj);
+                    if (isNull(priority)) {
+                        q.put(adj, newDist);
+                    } else if (newDist < priority) {
+                        q.remove(adj);
+                        q.put(adj, newDist);
+                    }
+                }
+
+                return Pair.of(curr, scanned.get(curr));
             }
         };
     }
@@ -283,21 +360,14 @@ public class Node<T> {
      * Find all possible paths from one node to another.
      * @param target The destination node.
      * @param edgeWeight A function that calculates the weight of moving from the left node to the right node.
+     *                   A <code>null</code> indicates that the edge cannot be traversed.
      * @return The shortest possible path from this not to the target.
      */
     public List<Node<T>> shortestWalk(Node<T> target, BiFunction<Node<T>, Node<T>, Long> edgeWeight) {
         Map<Node<T>, Long> distances = new HashMap<>(Map.of(this, 0L));
-        for (Node<T> n : breadthFirst()) {
-            if (n.equals(target)) break;
-            for (Node<T> ne : n.adjacent) {
-                Long weight = edgeWeight.apply(n,ne);
-                if (isNull(weight)) continue;
-                long oldDist = distances.getOrDefault(ne, Long.MAX_VALUE);
-                long newDist = distances.get(n) + weight;
-                if (oldDist > newDist) {
-                    distances.put(ne, newDist);
-                }
-            }
+        for (Pair<Node<T>, Long> n : breadthFirstWeighted(edgeWeight)) {
+            if (n.getKey().equals(target)) break;
+            distances.put(n.getKey(), n.getValue());
         }
 
         List<Node<T>> path = new ArrayList<>(List.of(target));
@@ -318,6 +388,39 @@ public class Node<T> {
 
         Collections.reverse(path);
         return path;
+    }
+
+    public static class Path<T> {
+        private final List<Node<T>> path;
+        private final Set<Node<T>> nodes;
+        private Integer hashCache;
+        public Path(List<Node<T>> path) {
+            this.path = new ArrayList<>(path);
+            this.nodes = new HashSet<>(path);
+        }
+        public Path(List<Node<T>> path, Node<T> tail) {
+            this(Stream.concat(path.stream(), Stream.of(tail)).collect(toList()));
+        }
+        public List<Node<T>> getPath() {
+            return path;
+        }
+        public boolean contains(Node<T> n) {
+            return nodes.contains(n);
+        }
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Path<?> path1 = (Path<?>) o;
+            return Objects.equals(path, path1.path);
+        }
+        @Override
+        public int hashCode() {
+            if (hashCache == null) {
+                hashCache = Objects.hash(path);
+            }
+            return hashCache;
+        }
     }
 
     @Override
