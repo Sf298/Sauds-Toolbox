@@ -78,4 +78,25 @@ public class VolumeSet {
         cuboids.addAll(merged);
     }
 
+    /* TODO finish implementing this.
+    public void retainAll(List<Cuboid> toRetain) {
+        List<Cuboid> affected = cuboids.stream()
+                .filter(c -> toRetain.stream().anyMatch(c::intersects))
+                .collect(toList());
+        cuboids.clear();
+
+        if (affected.isEmpty()) {
+            return;
+        }
+
+        List<Cuboid> newAffected = affected.stream()
+                .flatMap(c -> toRetain.stream().flatMap(tr -> c.segment(tr).stream()))
+                .filter(toRetain::contains)
+                .collect(toList());
+
+        List<Cuboid> merged = Cuboid.mergeAll(newAffected);
+
+        cuboids.addAll(merged);
+    }*/
+
 }
