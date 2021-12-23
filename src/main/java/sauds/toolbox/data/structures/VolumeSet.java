@@ -38,9 +38,9 @@ public class VolumeSet {
         cuboids.addAll(merged);
     }
 
-    public void subtract(Cuboid toAdd) {
+    public void subtract(Cuboid toSubtract) {
         List<Cuboid> affected = cuboids.stream()
-                .filter(toAdd::intersects)
+                .filter(toSubtract::intersects)
                 .collect(toList());
         if (affected.isEmpty()) {
             return;
@@ -49,8 +49,8 @@ public class VolumeSet {
         cuboids.removeAll(affected);
 
         List<Cuboid> newAffected = affected.stream()
-                .flatMap(c -> c.segment(toAdd).stream())
-                .filter(c -> !toAdd.contains(c))
+                .flatMap(c -> c.segment(toSubtract).stream())
+                .filter(c -> !toSubtract.contains(c))
                 .collect(toList());
 
         List<Cuboid> merged = Cuboid.mergeAll(newAffected);
