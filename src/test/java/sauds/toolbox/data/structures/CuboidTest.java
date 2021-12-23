@@ -4,15 +4,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.tools4j.spockito.jupiter.TableSource;
 
-import java.util.Collections;
+import java.math.BigInteger;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.IntStream;
 
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static sauds.toolbox.data.structures.Cuboid.*;
+import static sauds.toolbox.data.structures.Cuboid.mergeAll;
 
 class CuboidTest {
 
@@ -167,10 +165,11 @@ class CuboidTest {
         List<Cuboid> sliced = initial.slice(1, 4);
         assertThat(sliced).hasSize(2);
 
-        assertThat(sliced.stream().mapToInt(Cuboid::area).sum()).isEqualTo(initial.area());
+        assertThat(sliced.stream().map(Cuboid::area).reduce(BigInteger.ZERO, BigInteger::add))
+                .isEqualTo(initial.area());
 
-        List<Cuboid> merged = sliced.get(0).merge(sliced.get(1));
-        assertThat(merged).containsExactly(initial);
+        Cuboid merged = sliced.get(0).merge(sliced.get(1));
+        assertThat(merged).isEqualTo(initial);
     }
 
     @Test
@@ -179,7 +178,7 @@ class CuboidTest {
         Cuboid inner = new Cuboid(new Coordinate(3,3,3), new Coordinate(4,4,4));
         List<Cuboid> sliced = outer.segment(inner);
 
-        List<Integer> areas = sliced.stream().map(Cuboid::area).collect(toList());
+        List<Integer> areas = sliced.stream().map(Cuboid::area).map(BigInteger::intValue).collect(toList());
         assertThat(areas).containsExactlyInAnyOrder(8, 4,4,4,4,4,4, 2,2,2,2, 2,2,2,2, 2,2,2,2, 1,1,1,1, 1,1,1,1);
 
         List<Cuboid> merged = mergeAll(sliced);

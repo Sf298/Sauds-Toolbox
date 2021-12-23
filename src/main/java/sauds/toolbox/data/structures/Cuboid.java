@@ -1,12 +1,17 @@
 package sauds.toolbox.data.structures;
 
 
-import java.util.*;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.nonNull;
 import static java.util.stream.IntStream.range;
 
 public class Cuboid {
@@ -39,20 +44,21 @@ public class Cuboid {
     }
 
     public int min(int dim) {
-        return Math.min(mins.get(dim), maxs.get(dim));
+        return mins.get(dim);
     }
     public int max(int dim) {
-        return Math.max(mins.get(dim), maxs.get(dim));
+        return maxs.get(dim);
     }
 
     public int dims() {
         return mins.dims();
     }
 
-    public int area() {
+    public BigInteger area() {
         return range(0, mins.dims())
                 .map(i -> max(i)-min(i)+1)
-                .reduce(1, (l,r) -> l*r);
+                .mapToObj(BigInteger::valueOf)
+                .reduce(BigInteger.ONE, BigInteger::multiply);
     }
 
 
@@ -70,9 +76,8 @@ public class Cuboid {
                 .filter(i -> overlaps(min(i), max(i), c.min(i), c.max(i))
                         || surrounds(min(i), max(i), c.min(i), c.max(i))
                         || surrounds(c.min(i), c.max(i), min(i), max(i)))
-                .limit(2)
                 .count();
-        return overlapCount > 1;
+        return overlapCount == dims();
     }
 
     public boolean alignedInAxis(Cuboid r, int axis) {
@@ -96,11 +101,9 @@ public class Cuboid {
     }
 
 
-    public List<Cuboid> merge(Cuboid cuboid) {
-        if (!alignedAdjacently(cuboid))
-            return List.of(this, cuboid);
-
-        return List.of(new Cuboid(mins.min(cuboid.mins), maxs.max(cuboid.maxs)));
+    public Cuboid merge(Cuboid cuboid) {
+        if (!alignedAdjacently(cuboid)) return null;
+        return new Cuboid(mins.min(cuboid.mins), maxs.max(cuboid.maxs));
     }
 
     public static List<Cuboid> mergeAll(Collection<Cuboid> cuboids) {
@@ -108,14 +111,13 @@ public class Cuboid {
 
         outerLoop: while (true) {
             for (int i = 0; i < cs.size(); i++) {
+                Cuboid ci = cs.get(i);
                 for (int j = 0; j < i; j++) {
-                    if (cs.get(i).alignedAdjacently(cs.get(j))) {
-                        List<Cuboid> merged = cs.get(i).merge(cs.get(j));
-                        if (merged.size() == 1) {
-                            cs.remove(i);
-                            cs.remove(j);
-                            cs.addAll(merged);
-                        }
+                    Cuboid merged = ci.merge(cs.get(j));
+                    if (nonNull(merged)) {
+                        cs.remove(i);
+                        cs.remove(j);
+                        cs.add(merged);
                         continue outerLoop;
                     }
                 }
@@ -184,6 +186,9 @@ public class Cuboid {
     }
 
 
+    public static void print2DLayers(Cuboid... cuboids) {
+        print2DLayers(asList(cuboids));
+    }
     public static void print2DLayers(List<Cuboid> cuboids) {
         int minX = cuboids.stream().mapToInt(c -> c.min(0)).min().orElse(0);
         int maxX = cuboids.stream().mapToInt(c -> c.max(0)).max().orElse(0);
@@ -204,6 +209,9 @@ public class Cuboid {
         System.out.println();
     }
 
+    public static void printByIndex(Cuboid... cuboids) {
+        printByIndex(asList(cuboids));
+    }
     public static void printByIndex(List<Cuboid> cuboids) {
         int minX = cuboids.stream().mapToInt(c -> c.min(0)).min().orElse(0);
         int maxX = cuboids.stream().mapToInt(c -> c.max(0)).max().orElse(0);
