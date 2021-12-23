@@ -31,7 +31,7 @@ public class EdgeGraph<T> {
     }
 
     /**
-     * Create a graph from a list of edges.
+     * Create a graph from a list of node pairs (edges).
      * @param values The list of edges.
      */
     public EdgeGraph(List<List<T>> values) {
