@@ -267,7 +267,6 @@ public class PrimitiveList<T> implements List<T> {
 				oo[index] = element;
 				break;
 		}
-		hashCache = null;
 		return element;
     } // =====
 
@@ -314,24 +313,21 @@ public class PrimitiveList<T> implements List<T> {
 			out.add(get(i));
 		return out;
     } // =====
-	
-	private Integer hashCache = null;
+
 	@Override
 	public int hashCode() {
-		if(hashCache == null) {
-			switch(type) {
-				case BYTE:  hashCache = Arrays.hashCode(by); break;
-				case SHORT:  hashCache = Arrays.hashCode(ss); break;
-				case INT:  hashCache = Arrays.hashCode(ii); break;
-				case LONG:  hashCache = Arrays.hashCode(ll); break;
-				case FLOAT:  hashCache = Arrays.hashCode(ff); break;
-				case DOUBLE:  hashCache = Arrays.hashCode(dd); break;
-				case CHAR:  hashCache = Arrays.hashCode(cc); break;
-				case BOOL:  hashCache = Arrays.hashCode(bb); break;
-				case OBJ:  hashCache = Arrays.hashCode(oo); break;
-			}
+		switch(type) {
+			case BYTE:  return Arrays.hashCode(by);
+			case SHORT:  return Arrays.hashCode(ss);
+			case INT:  return Arrays.hashCode(ii);
+			case LONG:  return Arrays.hashCode(ll);
+			case FLOAT:  return Arrays.hashCode(ff);
+			case DOUBLE:  return Arrays.hashCode(dd);
+			case CHAR:  return Arrays.hashCode(cc);
+			case BOOL:  return Arrays.hashCode(bb);
+			case OBJ:  return Arrays.hashCode(oo);
 		}
-		return hashCache;
+		return 0;
 	} // =====
 
 	@Override
