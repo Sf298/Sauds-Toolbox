@@ -1,7 +1,6 @@
 package combinatorics;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -60,29 +59,76 @@ public class Permutations {
     public static <T> Iterable<List<T>> permuteWithRepetition(List<T> items) {
         return () -> new Iterator<>() {
             final List<T> itemsCopy = new ArrayList<>(items);
-            final List<Integer> indexes = IntStream.range(0, itemsCopy.size()).mapToObj(i -> 0).collect(toList());
-            boolean started = false;
+            final Iterator<int[]> i = permuteCuboidCoordinates(items.size(), items.size()).iterator();
 
             @Override
             public boolean hasNext() {
-                return !indexes.stream().allMatch(i -> i == itemsCopy.size()-1);
+                return i.hasNext();
             }
 
             @Override
             public List<T> next() {
-                if (!started) {
-                    started = true;
-                    return indexes.stream().map(itemsCopy::get).collect(toList());
+                return Arrays.stream(i.next()).mapToObj(itemsCopy::get).collect(toList());
+            }
+
+        };
+    }
+
+    public static Iterable<int[]> permuteCoordinates(int... dimensionSizes) {
+        final int[] currentIndex = new int[dimensionSizes.length];
+        currentIndex[currentIndex.length-1] = -1;
+
+        return () -> new Iterator<>() {
+
+            @Override
+            public boolean hasNext() {
+                for (int i = 0; i < currentIndex.length; i++) {
+                    if (currentIndex[i] < dimensionSizes[i] - 1) return true;
                 }
-                for (int i = indexes.size()-1; i >= 0; i--) {
-                    indexes.set(i, indexes.get(i)+1);
-                    if (indexes.get(i) != indexes.size()) {
+                return false;
+            }
+
+            @Override
+            public int[] next() {
+                for (int i = currentIndex.length - 1; i >= 0; i--) {
+                    currentIndex[i]++;
+                    if (currentIndex[i] < dimensionSizes[i]) {
                         break;
                     }
-                    indexes.set(i, 0);
+                    currentIndex[i] = 0;
                 }
 
-                return indexes.stream().map(itemsCopy::get).collect(toList());
+                return Arrays.copyOf(currentIndex, currentIndex.length);
+            }
+
+        };
+    }
+
+    public static Iterable<int[]> permuteCuboidCoordinates(int dims, int sideLength) {
+        final int[] currentIndex = new int[dims];
+        currentIndex[currentIndex.length-1] = -1;
+
+        return () -> new Iterator<>() {
+
+            @Override
+            public boolean hasNext() {
+                for (int index : currentIndex) {
+                    if (index < sideLength - 1) return true;
+                }
+                return false;
+            }
+
+            @Override
+            public int[] next() {
+                for (int i = currentIndex.length - 1; i >= 0; i--) {
+                    currentIndex[i]++;
+                    if (currentIndex[i] < sideLength) {
+                        break;
+                    }
+                    currentIndex[i] = 0;
+                }
+
+                return Arrays.copyOf(currentIndex, currentIndex.length);
             }
 
         };

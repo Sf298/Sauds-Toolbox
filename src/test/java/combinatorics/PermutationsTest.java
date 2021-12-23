@@ -3,6 +3,7 @@ package combinatorics;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -18,6 +19,8 @@ public class PermutationsTest {
             outputs.add(p);
         }
 
+        Iterator<List<Integer>> i = outputs.iterator();
+        assertThat(i.next()).doesNotContainSequence(i.next());
         assertThat(outputs).hasSize(factorial(list.size()));
     }
 
@@ -29,7 +32,33 @@ public class PermutationsTest {
             outputs.add(p);
         }
 
+        Iterator<List<Integer>> i = outputs.iterator();
+        assertThat(i.next()).doesNotContainSequence(i.next());
         assertThat(outputs).hasSize((int) Math.pow(list.size(), list.size()));
+    }
+
+    @Test
+    void testPermuteCoordinates() {
+        Set<int[]> outputs = new HashSet<>();
+        for (int[] c : Permutations.permuteCoordinates(2,3,7)) {
+            outputs.add(c);
+        }
+
+        assertThat(outputs).hasSize(42);
+        assertThat(outputs).noneMatch(c -> c[0]<0 || c[1]<0 || c[2]<0);
+        assertThat(outputs).noneMatch(c -> c[0]>=2 || c[1]>=3 || c[2]>=7);
+    }
+
+    @Test
+    void testPermuteCuboidCoordinates() {
+        Set<int[]> outputs = new HashSet<>();
+        for (int[] c : Permutations.permuteCuboidCoordinates(2,3)) {
+            outputs.add(c);
+        }
+
+        assertThat(outputs).hasSize(9);
+        assertThat(outputs).noneMatch(c -> c[0]<0 || c[1]<0);
+        assertThat(outputs).noneMatch(c -> c[0]>=3 || c[1]>=3);
     }
 
     private static int factorial(int number) {
