@@ -1,4 +1,4 @@
-package combinatorics;
+package sauds.toolbox.combinatorics;
 
 import java.util.*;
 
